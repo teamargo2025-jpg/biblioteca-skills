@@ -41,7 +41,7 @@ No están en este repositorio porque son oficiales de Anthropic: se instalan des
 
 | Skill | Qué hace | Cómo |
 |---|---|---|
-| **frontend-design** | Le da criterio visual a Claude —tipografía, paleta, composición— para que no produzca la interfaz genérica de siempre | `/plugin marketplace add anthropics/claude-plugins-official` y después `/plugin install frontend-design@...` |
+| **frontend-design** | Le da criterio visual a Claude —tipografía, paleta, composición— para que no produzca la interfaz genérica de siempre | `/plugin marketplace add anthropics/claude-plugins-official` y después `/plugin install frontend-design@claude-plugins-official` |
 
 ## Añadir una skill nueva
 

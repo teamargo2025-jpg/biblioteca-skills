@@ -32,6 +32,16 @@ Cuando se publiquen cambios, quien ya tenga el marketplace añadido los recibe a
 | Skill | Qué hace | Cuándo se dispara |
 |---|---|---|
 | **metis** | Convierte la idea de un proyecto nuevo en un documento con alcance, arquitectura, riesgos y roadmap por fases | Al traer una idea sin definir, o con `/metis` |
+| **seo-audit** | Audita el sitio en cinco frentes —indexación, rendimiento, on-page, contenido y autoridad— y devuelve cada hallazgo como problema → impacto → evidencia → arreglo → prioridad | Al hablar de SEO, posicionamiento, caídas de tráfico o Core Web Vitals |
+| **schema** | Datos estructurados JSON-LD para que Google muestre precio, stock y estrellas en los resultados | Al hablar de schema, datos estructurados, rich snippets o fichas de producto |
+
+### Skills de fuera que conviene instalar aparte
+
+No están en este repositorio porque son oficiales de Anthropic: se instalan desde su propio marketplace y así llegan sus actualizaciones.
+
+| Skill | Qué hace | Cómo |
+|---|---|---|
+| **frontend-design** | Le da criterio visual a Claude —tipografía, paleta, composición— para que no produzca la interfaz genérica de siempre | `/plugin marketplace add anthropics/claude-plugins-official` y después `/plugin install frontend-design@...` |
 
 ## Añadir una skill nueva
 
@@ -70,3 +80,15 @@ plugins/<nombre>/
     references/                   material que se lee solo cuando hace falta
 scripts/nueva-skill.mjs           andamiaje para añadir una skill
 ```
+
+## Origen y licencias
+
+`seo-audit` y `schema` vienen de [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills), © 2025 Corey Haines, bajo licencia MIT. Cada una conserva su `LICENSE` dentro de su carpeta, como exige esa licencia.
+
+Se copiaron en vez de añadir su marketplace entero porque allí las ~50 skills van en un solo plugin: es todo o nada, y cincuenta descripciones cargando en cada sesión es justo lo que este repositorio intenta evitar.
+
+El precio de copiarlas es que no llegan sus actualizaciones. Para volver a sincronizarlas, clona el repo original y sustituye la carpeta de la skill.
+
+Sus descripciones mencionan skills hermanas que aquí no existen (`ai-seo`, `programmatic-seo`). Es inofensivo —solo son remisiones— pero explica por qué a veces Claude las nombra.
+
+El resto de skills son propias, sin licencia de terceros.

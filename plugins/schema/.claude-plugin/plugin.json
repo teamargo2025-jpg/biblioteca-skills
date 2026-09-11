@@ -1,0 +1,9 @@
+{
+  "name": "schema",
+  "description": "Anade y valida datos estructurados JSON-LD (producto, valoraciones, FAQ, migas) para que Google muestre resultados enriquecidos con precio, stock y estrellas.",
+  "version": "2.0.0",
+  "author": {
+    "name": "Corey Haines"
+  },
+  "homepage": "https://github.com/coreyhaines31/marketingskills"
+}

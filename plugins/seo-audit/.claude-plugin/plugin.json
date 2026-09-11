@@ -1,0 +1,9 @@
+{
+  "name": "seo-audit",
+  "description": "Audita el SEO de un sitio en cinco frentes (indexacion, rendimiento, on-page, contenido y autoridad) y devuelve cada hallazgo como problema, impacto, evidencia, arreglo y prioridad.",
+  "version": "2.0.1",
+  "author": {
+    "name": "Corey Haines"
+  },
+  "homepage": "https://github.com/coreyhaines31/marketingskills"
+}

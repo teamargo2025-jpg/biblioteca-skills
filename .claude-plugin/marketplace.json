@@ -1,8 +1,7 @@
 {
   "name": "biblioteca-skills",
   "owner": {
-    "name": "Jose Hidalgo",
-    "email": "fchoquequ@unsa.edu.pe"
+    "name": "Jose Hidalgo"
   },
   "plugins": [
     {

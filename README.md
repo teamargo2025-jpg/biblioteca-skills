@@ -7,7 +7,7 @@ Skills de Claude Code, compartidas. Cada skill es un plugin independiente: se in
 Dentro de Claude Code, una sola vez por máquina:
 
 ```
-/plugin marketplace add spin6/biblioteca-skills
+/plugin marketplace add teamargo2025-jpg/biblioteca-skills
 ```
 
 Después, una por skill:
@@ -19,11 +19,11 @@ Después, una por skill:
 Desde la terminal es equivalente:
 
 ```bash
-claude plugin marketplace add spin6/biblioteca-skills
+claude plugin marketplace add teamargo2025-jpg/biblioteca-skills
 claude plugin install metis@biblioteca-skills
 ```
 
-> Reemplaza `spin6/biblioteca-skills` por el `usuario/repo` real de GitHub cuando esté publicado. Mientras el repo sea solo local, funciona con la ruta: `/plugin marketplace add C:/Users/spin6/Proyectos/biblioteca-skills`.
+> También funciona desde una copia local, sin pasar por GitHub: `/plugin marketplace add /ruta/al/repo`. Y una skill suelta funciona con solo copiar su carpeta a `~/.claude/skills/`, sin plugins de por medio.
 
 Cuando se publiquen cambios, quien ya tenga el marketplace añadido los recibe al actualizar; no hay que reinstalar.
 

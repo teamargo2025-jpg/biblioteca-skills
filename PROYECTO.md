@@ -2,7 +2,7 @@
 
 > Un sitio donde vivan las skills que de verdad sirven, compartido con un amigo, sin cargar con las cuarenta y siete que no.
 
-*Última actualización: 11 de septiembre de 2026*
+*Última actualización: 6 de octubre de 2026*
 
 ## El problema
 
@@ -80,6 +80,7 @@ Si dentro de un mes el repositorio está igual y nadie ha ejecutado nada, es una
 - **Las oficiales de Anthropic no se copian, se instalan.** Sin atribuciones que mantener y con actualizaciones automáticas.
 - **Una sola skill de diseño, no tres.** `taste-skill`, `ui-ux-pro-max` y `frontend-design` atacan lo mismo; tener las tres es pagar tres veces y darle a Claude tres criterios distintos. Se eligió la oficial.
 - **Repositorio público**, y el correo personal fuera del manifiesto.
+- **Un solo repositorio de skills (6 de octubre de 2026).** Existía un segundo repo, `claude-skills` (plano, una carpeta por skill, instalación copiando a mano), creado el 22 de septiembre con las mismas skills: `metis`, `schema` y `seo-audit` eran copias idénticas byte a byte. Se eliminó y se conservó este, porque el mecanismo de marketplace permite instalar skill por skill y recibir actualizaciones — las dos cosas que harán falta cuando la biblioteca crezca. Aquel repo aportaba además una copia de `frontend-design`, que aquí no se incorpora: sigue vigente la decisión de instalar las oficiales de Anthropic desde su marketplace en vez de copiarlas.
 - **Descartados y por qué:** legal y finanzas (son para despachos y bancas de inversión, y dependen de conectores de datos institucionales); docx/pdf/pptx/xlsx (ya vienen instaladas); la mayoría de `social-media-skills` (13 de 20 son de LinkedIn B2B); `copywriting` (sus ejemplos son Slack y "Start Free Trial", y aquí se vende shampoo sólido por WhatsApp).
 
 ## Preguntas abiertas

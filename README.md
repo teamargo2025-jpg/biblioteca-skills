@@ -23,9 +23,19 @@ claude plugin marketplace add teamargo2025-jpg/biblioteca-skills
 claude plugin install metis@biblioteca-skills
 ```
 
-> También funciona desde una copia local, sin pasar por GitHub: `/plugin marketplace add /ruta/al/repo`. Y una skill suelta funciona con solo copiar su carpeta a `~/.claude/skills/`, sin plugins de por medio.
-
 Cuando se publiquen cambios, quien ya tenga el marketplace añadido los recibe al actualizar; no hay que reinstalar.
+
+> También funciona desde una copia local, sin pasar por GitHub: `/plugin marketplace add /ruta/al/repo`.
+
+### Sin plugins, copiando la carpeta
+
+Una skill suelta funciona con solo copiarla a `~/.claude/skills/`. La carpeta a copiar es la de dentro del plugin:
+
+```bash
+cp -r plugins/metis/skills/metis ~/.claude/skills/
+```
+
+El precio es que así no llegan las actualizaciones: hay que volver a copiar a mano tras cada `git pull`.
 
 ## Skills disponibles
 

@@ -30,7 +30,7 @@ Salvo que la conversación indique otra cosa, asume:
 - **Un solo desarrollador**, con Claude Code como asistencia de programación.
 - **Proyecto personal**, sin cliente, sin plazo externo, con tiempo amplio disponible.
 - **Presupuesto cero**: todo debe caber en planes gratuitos. Si algo requiere gasto, dilo con la cifra mensual y deja que la persona decida.
-- **Stack de partida**: JavaScript/TypeScript, Vite, Supabase, despliegue en Vercel. Propón algo distinto solo si el proyecto lo exige de verdad, y explica por qué.
+- **Stack de partida**: JavaScript/TypeScript, Vite, Supabase, despliegue en Cloudflare Pages. Propón algo distinto solo si el proyecto lo exige de verdad, y explica por qué. Ojo con el hosting gratis: GitHub Pages y Vercel Hobby **prohíben el uso comercial** (una tienda, una herramienta para un negocio, o un proyecto por el que a alguien le pagan); Cloudflare Pages no lo restringe.
 
 No preguntes por estas cosas. Están asumidas; si alguna no aplica, la persona lo dirá. Preguntar lo que ya se sabe es la principal fuente de lentitud en este tipo de sesiones.
 
@@ -124,7 +124,7 @@ Si hay conector de Trello, ofrece volcar las tareas de las dos primeras fases �
 
 Dos o tres líneas, no un resumen del documento que la persona ya tiene:
 
-1. **El primer paso concreto**, el de mañana. Debe ser pequeño y verificable.
+1. **El primer paso concreto**, el de mañana. Debe ser pequeño y verificable. Casi siempre es montar el repo con la skill **arranque**, que lee este `PROYECTO.md` y deja el esqueleto (CLAUDE.md, CI, lint, hooks y dónde publicar) antes de escribir la primera funcionalidad.
 2. **La parte más incierta del plan**, y qué la despeja.
 3. **La pregunta abierta que bloquea el arranque**, si quedó alguna.
 

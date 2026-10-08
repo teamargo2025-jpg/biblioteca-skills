@@ -19,7 +19,7 @@ Esa segunda respuesta es la causa más común de replanteo a mitad de proyecto: 
 
 | El proyecto necesita | Propón | Por qué |
 |---|---|---|
-| Solo interfaz y datos | Vite + Vercel + Supabase | Es el camino más corto y ya conocido |
+| Solo interfaz y datos | Vite + Cloudflare Pages + Supabase | Es el camino más corto, y el plan gratis de Cloudflare Pages permite uso comercial |
 | Avisar a un celular | **PWA instalable + Web Push** | Notificación en celular y escritorio con un solo desarrollo, sin publicar en ninguna tienda |
 | Ejecutar algo a una hora | **`pg_cron` de Supabase** llamando a una Edge Function | El único cron de verdad que hay en los planes gratuitos habituales |
 | Capturar por voz | Web Speech API del navegador | Gratis y sin servicios externos; suficiente para dictado corto |
@@ -27,7 +27,9 @@ Esa segunda respuesta es la causa más común de replanteo a mitad de proyecto: 
 | Enviar correo | Resend o similar, plan gratuito | Volumen personal cabe de sobra |
 | Procesar lenguaje natural | API de Claude, modelo Haiku | Céntimos al mes en uso personal — pero no es gratis; ver abajo |
 
-Regla general: **una sola plataforma para datos, autenticación y tareas programadas** (hoy, Supabase) y otra para servir la interfaz (Vercel). Repartir esto entre cuatro servicios gratuitos multiplica los puntos de fallo sin ahorrar nada.
+Regla general: **una sola plataforma para datos, autenticación y tareas programadas** (hoy, Supabase) y otra para servir la interfaz (Cloudflare Pages). Repartir esto entre cuatro servicios gratuitos multiplica los puntos de fallo sin ahorrar nada.
+
+**El hosting gratis tiene condiciones de uso, no solo límites.** GitHub Pages prohíbe los sitios que venden o los SaaS comerciales; el plan Hobby de Vercel es solo para uso personal no comercial, y cuenta como comercial incluso que a alguien le paguen por hacer el sitio. Si el proyecto es o puede ser comercial, Cloudflare Pages desde el día 1: mudarse después cuesta más. Detalle y fuentes: `references/hosting.md` de la skill arranque.
 
 ## Trampas
 

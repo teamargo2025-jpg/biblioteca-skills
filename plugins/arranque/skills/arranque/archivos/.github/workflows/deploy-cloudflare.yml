@@ -1,0 +1,67 @@
+# Publicacion en Cloudflare Pages al mezclar en main.
+#
+# Probada el 8 de octubre de 2026 en prueba-arranque: publico sola al mezclar
+# en main. Cloudflare tiene que estar configurado (abajo) ANTES del primer
+# merge; si no, el primer deploy de main sale en rojo.
+#
+# Por que Cloudflare Pages: su plan gratis no restringe el uso comercial
+# (GitHub Pages lo prohibe para sitios que venden; Vercel Hobby, para cualquier
+# proyecto con fines de lucro). Ver references/hosting.md de la skill arranque.
+#
+# Corre los tests ANTES de publicar: si fallan, no se publica nada.
+#
+# Necesita, en Settings -> Secrets and variables -> Actions:
+#   CLOUDFLARE_API_TOKEN   token con permiso "Cloudflare Pages: Edit"
+#   CLOUDFLARE_ACCOUNT_ID  el id de la cuenta (panel de Cloudflare, a la derecha)
+# y un proyecto de Pages de "subida directa" (Direct Upload) ya creado, SIN
+# conectarlo a git: si Cloudflare tambien compila desde git, sus builds pisan
+# los de aca (paso en Amyra y Volka).
+
+name: Publicar en Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: publicar
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+        # env:
+        #   VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        #   VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Publicar
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Cambiar NOMBRE-DEL-PROYECTO por el del proyecto en Cloudflare Pages.
+          command: pages deploy dist --project-name=NOMBRE-DEL-PROYECTO --branch=main

@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+
+# Claves: .env y cualquier .env.algo nunca se suben. Los .example si, porque
+# dicen que variables hacen falta, sin sus valores.
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Configuracion personal de Claude Code (la compartida es .claude/settings.json).
+.claude/settings.local.json

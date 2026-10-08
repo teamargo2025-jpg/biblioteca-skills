@@ -23,15 +23,26 @@ claude plugin marketplace add teamargo2025-jpg/biblioteca-skills
 claude plugin install metis@biblioteca-skills
 ```
 
-> También funciona desde una copia local, sin pasar por GitHub: `/plugin marketplace add /ruta/al/repo`. Y una skill suelta funciona con solo copiar su carpeta a `~/.claude/skills/`, sin plugins de por medio.
-
 Cuando se publiquen cambios, quien ya tenga el marketplace añadido los recibe al actualizar; no hay que reinstalar.
+
+> También funciona desde una copia local, sin pasar por GitHub: `/plugin marketplace add /ruta/al/repo`.
+
+### Sin plugins, copiando la carpeta
+
+Una skill suelta funciona con solo copiarla a `~/.claude/skills/`. La carpeta a copiar es la de dentro del plugin:
+
+```bash
+cp -r plugins/metis/skills/metis ~/.claude/skills/
+```
+
+El precio es que así no llegan las actualizaciones: hay que volver a copiar a mano tras cada `git pull`.
 
 ## Skills disponibles
 
 | Skill | Qué hace | Cuándo se dispara |
 |---|---|---|
 | **metis** | Convierte la idea de un proyecto nuevo en un documento con alcance, arquitectura, riesgos y roadmap por fases | Al traer una idea sin definir, o con `/metis` |
+| **arranque** | Monta el esqueleto profesional de un repo, nuevo o existente: CLAUDE.md, README, CI en cada PR, ESLint, Prettier, hooks de Claude Code y dónde publicarlo según si es comercial | Al decir "arranca el proyecto", "ponle el estándar", "configura CI y lint", o justo después de metis |
 | **seo-audit** | Audita el sitio en cinco frentes —indexación, rendimiento, on-page, contenido y autoridad— y devuelve cada hallazgo como problema → impacto → evidencia → arreglo → prioridad | Al hablar de SEO, posicionamiento, caídas de tráfico o Core Web Vitals |
 | **schema** | Datos estructurados JSON-LD para que Google muestre precio, stock y estrellas en los resultados | Al hablar de schema, datos estructurados, rich snippets o fichas de producto |
 

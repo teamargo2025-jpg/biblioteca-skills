@@ -8,7 +8,7 @@
       "name": "metis",
       "source": "./plugins/metis",
       "description": "Aterriza la idea de un proyecto nuevo en un documento y un roadmap ejecutables, en tres rondas de conversacion.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "Jose Hidalgo"
       }
@@ -32,6 +32,15 @@
         "name": "Corey Haines"
       },
       "homepage": "https://github.com/coreyhaines31/marketingskills"
+    },
+    {
+      "name": "arranque",
+      "source": "./plugins/arranque",
+      "description": "Monta el esqueleto profesional de un repo nuevo o existente (CLAUDE.md, README, CI, ESLint, Prettier, hooks de Claude Code) y decide donde publicarlo segun si es comercial.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jose Hidalgo"
+      }
     }
   ]
 }

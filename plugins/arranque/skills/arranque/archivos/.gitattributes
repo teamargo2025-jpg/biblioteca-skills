@@ -1,0 +1,10 @@
+# Saltos de linea LF en todas las maquinas, Windows incluido. Asi Prettier
+# (que escribe LF) da el mismo resultado en cualquier PC y en la CI.
+* text=auto eol=lf
+
+# Binarios: nunca convertir.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary

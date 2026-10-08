@@ -41,6 +41,15 @@
       "author": {
         "name": "Jose Hidalgo"
       }
+    },
+    {
+      "name": "lanzamiento",
+      "source": "./plugins/lanzamiento",
+      "description": "Revisa un proyecto antes de que lo usen personas reales (qué ve alguien sin sesión, secretos, dinero, datos personales, respaldo, errores, publicación) y devuelve un informe con gravedad, evidencia y arreglo.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jose Hidalgo"
+      }
     }
   ]
 }

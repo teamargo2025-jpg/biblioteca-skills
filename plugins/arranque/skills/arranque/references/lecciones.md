@@ -1,7 +1,50 @@
-# Lecciones del piloto en Saviare
+# Lecciones del piloto en Saviare y de la fase 4
 
-Errores reales del 6 y 7 de octubre de 2026, con lo que los evita. Leer antes
-de aplicar el esqueleto a un proyecto **existente**: ahí es donde muerden.
+Errores reales del 6 al 9 de octubre de 2026 (Saviare, y después Gonthia,
+Chincha-Inventario, Volka y Amyra), con lo que los evita. Leer antes de
+aplicar el esqueleto a un proyecto **existente**: ahí es donde muerden.
+
+## En el diagnóstico
+
+- **Commits que solo están en la PC:** `git log origin/main..main`. En Amyra
+  había 5 commits ya publicados (con un deploy manual) que no estaban en
+  GitHub. Se suben antes de todo, con permiso, y se comprueba qué migraciones
+  necesitan: el sitio en vivo puede depender de una que nadie recuerda haber
+  corrido (se verifica llamando a una función de esa migración, solo lectura).
+- **Deploy manual desde la PC** (`npm run deploy` con wrangler): publica sin
+  tests y deja producción por delante de GitHub. Se reemplaza por el
+  workflow de deploy y se quita el script, para que haya un solo camino.
+- **Medir el estilo** antes de configurar Prettier (punto y coma, comillas,
+  coma final, ancho). Con el estilo bien medido, el formateo toca pocos
+  archivos.
+- **Sin tests:** escribir el primero sobre la lógica más delicada y
+  **comprobar que falla** rompiendo esa lógica a propósito. Si pasa igual,
+  no prueba nada. Para Supabase sirve PGlite con `auth.uid()` y los roles
+  simulados (ver `pruebas/sql.test.mjs` de Gonthia o Chincha-Inventario).
+
+## Al verificar que los arreglos no cambian nada
+
+- **Los arreglos de ESLint cambian el build minificado** (`catch(e){` pasa a
+  `catch{` y el minificador renombra variables), así que el hash no sirve.
+  Comparar builds **sin minificar** (`vite build --minify false`) y mirar
+  que las únicas líneas distintas sean las esperadas.
+- **Prettier no siempre queda estable en una pasada** (pasó con una cadena
+  de métodos en Amyra): después de `npm run format`, correr
+  `npm run format:check`. Si marca algo, segunda pasada en su propio commit,
+  también en `.git-blame-ignore-revs`.
+- **Archivos de `public/`** se copian tal cual: si el hash cambia, mirar con
+  `git diff` si es solo CRLF de la copia local.
+- **Para comparar el sitio en vivo con el build local**, pedir la página con
+  `?v=<algo>`: Cloudflare puede devolver el HTML en caché del deploy anterior.
+
+## Al pasar el PR
+
+- **Antes de dar el enlace del PR**, confirmar que la rama remota tiene todos
+  los commits (`git log main..origin/<rama>`). En Saviare se mezcló un PR al
+  que le faltaba un commit que solo estaba en la PC.
+- **Un check rojo de Vercel** ("Deployment was blocked") en un proyecto que
+  se está mudando no es del código: Vercel no compila commits de autores
+  ajenos a la cuenta. El que importa es el de la CI.
 
 ## Al formatear un proyecto existente
 

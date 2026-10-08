@@ -55,10 +55,19 @@ Sin tocar nada, revisa:
 - **Git**: rama actual, cambios sin commitear, ramas viejas, si hay remoto.
 - **Publicación**: qué workflow o configuración publica hoy el sitio, y dónde.
 
-Muéstralo como tabla de ✅ / ❌ contra las capas de arriba. Si el proyecto
-está vacío (recién salido de metis), lo primero es crear la base con
-`npm create vite@latest . -- --template vanilla` o la plantilla del stack
-elegido, y recién después aplicar el esqueleto.
+Muéstralo como tabla de ✅ / ❌ contra las capas de arriba.
+
+**Repositorio vacío** (sin ningún commit, por ejemplo recién creado en
+GitHub): un PR necesita una rama base contra la que compararse, y `main`
+todavía no existe. Entonces:
+
+1. Crea la base del proyecto con `npm create vite@latest . -- --template vanilla`
+   (o la plantilla del stack elegido), más `.gitignore` y `.gitattributes`
+   de `archivos/`, para que `node_modules/` nunca llegue a subirse.
+2. Ese primer commit va **directo a `main`** y se sube. Es la única excepción
+   a "todo por PR", y solo porque todavía no hay contra qué comparar.
+3. Desde ahí, el resto del esqueleto va en una rama y por PR, como siempre.
+   Así el primer PR ya muestra la CI corriendo.
 
 Si hay cambios sin commitear, **no sigas**: pregunta qué hacer con ellos.
 Mezclarlos con el esqueleto hace imposible revisar ninguna de las dos cosas.

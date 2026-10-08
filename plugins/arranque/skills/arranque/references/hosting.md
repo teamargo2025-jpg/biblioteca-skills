@@ -49,8 +49,10 @@ proyecto importante.
 4. Copiar `archivos/.github/workflows/deploy-cloudflare.yml` y poner el nombre
    del proyecto. Publica al mezclar en `main` y corre los tests antes.
 
-La plantilla del workflow todavía no está probada en un proyecto real: la
-primera vez, verificar el sitio publicado y anotar lo que haya que corregir.
+Probada el 8 de octubre de 2026 en `prueba-arranque`: el sitio quedó en
+`prueba-arranque.pages.dev`, publicado por GitHub Actions al mezclar. Hacer
+los pasos 1 a 3 **antes del primer merge**: sin el proyecto y los secretos,
+el primer deploy de `main` sale en rojo.
 
 ## Dominio
 

@@ -1,7 +1,8 @@
 # Publicacion en Cloudflare Pages al mezclar en main.
 #
-# ESTADO: plantilla SIN PROBAR todavia en un proyecto real. Validarla en la
-# primera mudanza y borrar esta linea cuando funcione.
+# Probada el 8 de octubre de 2026 en prueba-arranque: publico sola al mezclar
+# en main. Cloudflare tiene que estar configurado (abajo) ANTES del primer
+# merge; si no, el primer deploy de main sale en rojo.
 #
 # Por que Cloudflare Pages: su plan gratis no restringe el uso comercial
 # (GitHub Pages lo prohibe para sitios que venden; Vercel Hobby, para cualquier

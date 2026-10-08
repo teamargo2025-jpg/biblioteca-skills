@@ -117,8 +117,8 @@ cada uno se puede revisar solo y, si algo sale mal, se revierte solo.
    `.github/pull_request_template.md`. Si ya existe un workflow de deploy,
    **no lo reemplaces**: solo asegúrate de que corra `npm test` antes del build.
    Si el proyecto es nuevo, usa `deploy-cloudflare.yml` (ver
-   `references/hosting.md`; esa plantilla todavía no está probada en un
-   proyecto real: dilo).
+   `references/hosting.md`). Cloudflare tiene que quedar configurado antes del
+   primer merge, o el deploy de `main` sale en rojo: dilo antes del PR.
 6. **Hooks.** Copia `.claude/settings.json` (si existe, fusiona los `hooks`) y
    `.claude/hooks/`. Ajusta `CARPETAS_DE_CODIGO` en `tests-al-terminar.mjs` a
    donde vive el código.
@@ -129,6 +129,12 @@ cada uno se puede revisar solo y, si algo sale mal, se revierte solo.
 Si el proyecto no tiene ningún test, escribe uno de verdad sobre la lógica más
 delicada que encuentres (dinero, fechas, permisos). Un test que no prueba nada
 no protege nada.
+
+Si al escribir esa lógica aparece una **decisión de negocio** (cómo se calcula
+un precio o un margen, cómo se redondea, si se incluyen impuestos), no la
+elijas en silencio: propón la opción con su porqué y pregunta. Es una decisión
+del dueño del negocio, no del código. En la prueba de esta skill, la sesión
+eligió bien "margen sobre el precio" y lo documentó, pero no lo preguntó.
 
 ## 4. Verificar
 

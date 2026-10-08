@@ -61,6 +61,10 @@ de aplicar el esqueleto a un proyecto **existente**: ahí es donde muerden.
 - **`npm` desde Node necesita shell** en Windows (es un `.cmd`): pasarlo como un
   solo string (`spawnSync('npm test', { shell: true })`), no como lista de
   argumentos.
+- **`npm ci` con un servidor de desarrollo corriendo** (otra sesión, otra
+  terminal) falla con EPERM: Windows no deja borrar un archivo en uso, y la
+  instalación queda a medias. Usar `npm install`, que no borra todo, o detener
+  el servidor antes.
 - **Rutas en JSON**: las barras invertidas de Windows se pierden si el JSON se
   arma a mano en la terminal. Armarlo con `JSON.stringify`.
 
@@ -90,3 +94,10 @@ de aplicar el esqueleto a un proyecto **existente**: ahí es donde muerden.
   escribirles un valor.
 - **Repo público + datos de clientes**: cualquier artifact de GitHub Actions
   se puede descargar. Nada con datos personales se sube sin cifrar.
+
+## Al escribir texto con comandos de la terminal
+
+- **Nunca meter acentos graves (`` ` ``) dentro de un string entre comillas
+  dobles de bash**: bash los ejecuta como comandos y borra esas palabras del
+  texto sin avisar (pasó al editar esta misma skill). Para editar archivos,
+  la herramienta de edición o un heredoc con `'EOF'` entre comillas simples.

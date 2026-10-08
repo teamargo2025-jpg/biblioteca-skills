@@ -73,6 +73,10 @@ son "sensibles": más cuidado todavía.
   ve (frente 1) y adónde se copian (respaldos, exportaciones, analítica).
 - Política de privacidad visible, con quién es el responsable y un contacto.
 - Que la persona pueda pedir o hacer el borrado de sus datos.
+- Un conjunto organizado de datos de personas (clientes con DNI, socios) es
+  un "banco de datos personales" y puede tener que inscribirse ante la
+  Autoridad Nacional de Protección de Datos Personales. No es técnico:
+  decirlo en el informe y que lo vea el dueño, sin afirmar si aplica.
 - **Respaldos con datos personales:** si el repo es público, cifrados sí o
   sí (un artifact de Actions se puede descargar). Si es privado y hay datos
   sensibles, cifrados también. Plantilla: `scripts/cifrado-copia.mjs` y
@@ -108,6 +112,16 @@ son "sensibles": más cuidado todavía.
 
 ## 7. Publicación
 
+- **Lo que corre en producción es lo que prueban los tests.** Los tests
+  corren TODAS las migraciones del repo; producción solo tiene las que
+  alguien pegó en el SQL Editor. Por cada migración, comprobar que algo
+  suyo exista en la base real: una tabla nueva (pedirla con la clave
+  pública: "no existe" es `PGRST205`), una función (`rpc` con un id
+  inventado), una Edge Function (`/functions/v1/<nombre>` responde algo
+  distinto de 404). En Gonthia faltaba la 0005: los tests garantizaban
+  permisos y avisos que producción no tenía. Lo mismo con los secretos que
+  piden los workflows y las funciones: un workflow que nunca corrió en verde
+  no protege nada.
 - Hosting que permita el uso: comercial → Cloudflare Pages (ver
   `arranque/references/hosting.md`).
 - Deploy automático al mezclar, con tests antes. Nada de `npm run deploy`

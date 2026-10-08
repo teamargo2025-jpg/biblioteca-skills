@@ -67,7 +67,10 @@ problema) está en `references/frentes.md`. Resumen:
 6. **Cómo te enteras de un error.** Si algo falla en el celular de un
    usuario, ¿quién se entera, y cuándo? "Me avisa por WhatsApp" es una
    respuesta válida para cinco usuarios, no para cien.
-7. **Publicación.** Hosting que permita el uso (regla de
+7. **Publicación.** Que **producción tenga lo que el repo dice**: cada
+   migración aplicada, cada función desplegada, cada secreto cargado (los
+   tests corren todas las migraciones; producción, solo las que alguien
+   pegó). Hosting que permita el uso (regla de
    `arranque/references/hosting.md`), deploy automático con tests, y que lo
    que la gente guarda (QR impresos, apps instaladas, links) no dependa de
    una dirección que va a cambiar.
@@ -79,7 +82,7 @@ evidencia** (el comando y lo que devolvió), y **el arreglo propuesto**.
 
 | Gravedad | Cuándo |
 |---|---|
-| **Bloquea** | Datos de una persona visibles para otra o para cualquiera; dinero manipulable desde el navegador; un secreto filtrado; datos que no se pueden volver a escribir sin respaldo; hosting que prohíbe el uso. |
+| **Bloquea** | Datos de una persona visibles para otra o para cualquiera; dinero manipulable desde el navegador; un secreto filtrado; datos que no se pueden volver a escribir sin respaldo; hosting que prohíbe el uso; **lo que la app promete como su razón de ser no funciona en producción** (en Gonthia, los avisos de plazo), salvo que el dueño decida lanzar sin eso y lo diga. |
 | **Antes de una semana** | Respaldo sin restaurar nunca; nadie se entera de los errores; datos personales en un respaldo sin cifrar en un repo privado; escrituras abiertas que dejan tocar filas ajenas conociendo un id. |
 | **Mejora** | Lo demás: mensajes de error, íconos, textos, rendimiento. |
 

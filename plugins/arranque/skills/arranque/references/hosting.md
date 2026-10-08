@@ -54,6 +54,20 @@ Probada el 8 de octubre de 2026 en `prueba-arranque`: el sitio quedó en
 los pasos 1 a 3 **antes del primer merge**: sin el proyecto y los secretos,
 el primer deploy de `main` sale en rojo.
 
+Dos cosas que aparecieron al mudar Saviare (8 de octubre de 2026):
+
+- **Crear el proyecto desde la terminal:** `wrangler pages project create`
+  (desde la 4.148) intenta convertir el proyecto en un Worker. Si se corre
+  dentro del repo, **modifica `package.json` y `vite.config.js`** sin
+  preguntar. Correrlo desde una carpeta vacía y con `--force`:
+  `wrangler pages project create <nombre> --production-branch=main --force`.
+  Después, `git status` en el repo para confirmar que no tocó nada.
+- **Cloudflare quita el `.html`:** `catalogo.html` redirige (308) a
+  `catalogo`. Las canónicas, `og:url`, el sitemap y los datos estructurados
+  van **sin `.html`**, porque una canónica que redirige confunde a Google.
+  Los enlaces internos pueden seguir con `.html`: el servidor de desarrollo de
+  Vite los necesita, y la redirección no rompe nada.
+
 ## Dominio
 
 - El sitio funciona gratis en `<proyecto>.pages.dev`. El dominio propio es

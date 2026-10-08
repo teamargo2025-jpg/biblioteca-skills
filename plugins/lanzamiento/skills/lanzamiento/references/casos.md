@@ -58,3 +58,14 @@ en el build de producción.
 La regla de `update` sobre `productos` deja cambiar `cantidad` directamente,
 saltándose `registrar_movimiento`, que es lo que deja el historial. Nadie
 de afuera puede (hace falta sesión), pero un empleado sí, sin rastro.
+
+## Gonthia (seguimiento de ventas): producción sin la última migración — Bloquea
+
+Encontrado por la prueba de esta skill en una sesión nueva, el 9 de octubre
+de 2026. Los 22 tests pasaban porque corren las cinco migraciones del repo,
+pero en Supabase faltaba la 0005: no existían los avisos de plazo (la razón
+de ser de la app), la pestaña Equipo no guardaba (Supabase no da error, el
+cambio simplemente no se aplica) y cualquier usuario podía cambiar el estado
+de una venta sin dejar historial. Además el backup nunca había corrido por
+falta de un secreto. Se detectó pidiendo a la base real una tabla de la
+0005 (`avisos_enviados`: no existe) y la Edge Function (404).

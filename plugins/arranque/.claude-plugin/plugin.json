@@ -1,0 +1,8 @@
+{
+  "name": "arranque",
+  "description": "Monta el esqueleto profesional de un proyecto (CLAUDE.md, CI, lint, formato, hooks) en un repo nuevo o existente.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Jose Hidalgo"
+  }
+}

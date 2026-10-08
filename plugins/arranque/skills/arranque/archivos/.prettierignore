@@ -1,0 +1,9 @@
+# Lo que se genera solo: formatearlo no tiene sentido y se sobrescribe.
+dist/
+package-lock.json
+
+# En un proyecto EXISTENTE, agregar aca lo que no se debe reformatear todavia:
+# - *.html si las paginas tienen texto en linea (Prettier reacomoda espacios
+#   entre etiquetas y eso puede cambiar como se ve). Se incorpora despues, en
+#   un PR propio, revisando cada pagina en el navegador.
+# - supabase/ si las migraciones ya estan aplicadas: no se tocan.

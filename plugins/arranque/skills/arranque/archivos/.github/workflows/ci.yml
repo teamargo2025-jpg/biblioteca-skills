@@ -1,0 +1,51 @@
+# Revision de cada Pull Request antes del merge: lint, formato, tests y build.
+#
+# Corre en cada PR hacia main. GitHub muestra el resultado en el PR y avisa en
+# el boton de merge si algo fallo: un error se ve aca, antes de llegar a
+# produccion. No se mezcla un PR con la revision en rojo.
+
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Lint y formato van solo aca y no en el deploy: un problema de estilo
+      # no le hace dano a nadie en produccion y no debe frenar una publicacion.
+      - name: Lint
+        run: npm run lint
+
+      - name: Formato
+        run: npm run format:check
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+        # Si el build necesita variables (por ejemplo las de Supabase), se
+        # cargan como secretos del repo y se pasan aca. GitHub solo los entrega
+        # a PRs abiertos desde ramas de este mismo repositorio, nunca a forks.
+        # env:
+        #   VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        #   VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}

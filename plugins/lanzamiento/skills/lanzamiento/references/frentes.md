@@ -107,6 +107,12 @@ son "sensibles": más cuidado todavía.
   proyecto comercial. La alternativa sin servicio externo es guardar los
   errores en una tabla, pero entonces esa tabla acepta escrituras anónimas:
   limitar el tamaño y no guardar datos de la persona.
+- **Disponibilidad medida, no supuesta:** un monitor externo gratuito (por
+  ejemplo UptimeRobot) que abra la app cada pocos minutos y avise si no
+  responde. Con un año de registro se tiene el porcentaje real de ESA app, que
+  es lo que se le puede mostrar a un cliente. Los proveedores no publican un
+  porcentaje anual confiable de sus planes gratuitos, y los sitios que los
+  rastrean se contradicen (revisado en octubre de 2026).
 - Si no hay nada de eso, decirlo en el informe como "Antes de una semana" y
   acordar al menos un canal ("si algo falla, me escriben a este número").
 

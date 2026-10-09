@@ -122,6 +122,12 @@ son "sensibles": más cuidado todavía.
   permisos y avisos que producción no tenía. Lo mismo con los secretos que
   piden los workflows y las funciones: un workflow que nunca corrió en verde
   no protege nada.
+- **Dónde viven las cuentas:** antes de los datos reales, la base de datos,
+  la publicación y el dominio se mudan del entorno de desarrollo a la casa
+  del proyecto (un correo propio). Cuentas en un correo institucional o
+  personal del desarrollador son "Antes de una semana"; mudar después de
+  imprimir QR o repartir links cambia la dirección. Cómo:
+  `arranque/references/cuentas.md`.
 - Hosting que permita el uso: comercial → Cloudflare Pages (ver
   `arranque/references/hosting.md`).
 - Deploy automático al mezclar, con tests antes. Nada de `npm run deploy`

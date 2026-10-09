@@ -76,6 +76,10 @@ Mezclarlos con el esqueleto hace imposible revisar ninguna de las dos cosas.
 
 No más de cuatro preguntas, y solo las que cambian lo que vas a hacer:
 
+0. **¿En qué cuentas nace?** En el entorno controlado del desarrollador (su
+   correo profesional, nunca uno institucional), y se muda a su propia casa
+   antes de recibir datos reales: ver `references/cuentas.md`. No preguntes
+   esto si ya está resuelto; dilo si ves cuentas en un correo institucional.
 1. **¿Es comercial?** Aplica la regla de `references/hosting.md`: si un
    negocio gana dinero con el sistema o a alguien le pagan por hacerlo, es
    comercial y va a Cloudflare Pages. Si ya está publicado en un hosting que

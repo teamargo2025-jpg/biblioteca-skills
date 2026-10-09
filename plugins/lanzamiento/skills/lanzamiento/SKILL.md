@@ -109,6 +109,9 @@ Para lanzar, todo esto tiene que ser verdad, y comprobado, no supuesto:
 - `acceso-anonimo.mjs` solo muestra tablas que el dueño publicaría en un cartel.
 - El respaldo corrió y se restauró una vez en un proyecto aparte.
 - Hay una forma concreta de enterarse de un error en producción.
+- Las cuentas ya están en la casa del proyecto (su propio correo), no en el
+  entorno de desarrollo ni en un correo institucional
+  (`arranque/references/cuentas.md`).
 - **Una persona real** hizo el recorrido principal en su propio celular,
   con datos reales, y funcionó.
 

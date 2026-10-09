@@ -51,6 +51,30 @@ salvo que el cliente compre el código.
 - **Desarrollar en casa propia es más rápido:** cuentas y permisos ya
   armados; la mudanza se hace una vez, cuando el proyecto ya vale la pena.
 
+## Quién entra con qué
+
+- **El correo del proyecto es el dueño legal, no el que se usa a diario.**
+  El desarrollador se agrega con su correo profesional como miembro de la
+  organización de Supabase y de la cuenta de Cloudflare del proyecto, y
+  trabaja desde ahí: un solo inicio de sesión para todos sus clientes.
+  Entregar un proyecto es quitarse como miembro. (Comprobar al invitar que el
+  plan gratuito de cada servicio admita miembros.)
+- **La contraseña del correo del proyecto** la guarda el desarrollador en un
+  gestor de contraseñas (por ejemplo Bitwarden) mientras dure el servicio.
+- **El teléfono de recuperación de ese correo es el del cliente.** Si el
+  desarrollador desaparece, el cliente recupera todo. Es lo que hace creíble
+  "los datos son del cliente, siempre".
+
+## Límites de los planes gratuitos (octubre de 2026)
+
+- **Supabase:** 2 proyectos activos por organización; los pausados no
+  cuentan, y un proyecto gratuito se pausa tras una semana sin uso. Con una
+  organización por proyecto, el límite deja de ser un problema (y no hace
+  falta repartir proyectos entre cuentas). Verificar en supabase.com/pricing.
+- **Cloudflare Pages:** sin tope publicado de proyectos por cuenta; 500
+  compilaciones al mes por cuenta, que no afectan a quien publica desde
+  GitHub Actions.
+
 ## Cuentas de las personas del cliente
 
 Cada persona que usa el sistema entra con **su propio correo**: nada de

@@ -44,6 +44,7 @@ El precio es que así no llegan las actualizaciones: hay que volver a copiar a m
 | **metis** | Convierte la idea de un proyecto nuevo en un documento con alcance, arquitectura, riesgos y roadmap por fases | Al traer una idea sin definir, o con `/metis` |
 | **arranque** | Monta el esqueleto profesional de un repo, nuevo o existente: CLAUDE.md, README, CI en cada PR, ESLint, Prettier, hooks de Claude Code y dónde publicarlo según si es comercial | Al decir "arranca el proyecto", "ponle el estándar", "configura CI y lint", o justo después de metis |
 | **lanzamiento** | Revisa un proyecto antes de que lo use gente real —qué ve alguien sin sesión, secretos, dinero, datos personales, respaldo, errores y publicación— y devuelve un informe con gravedad, evidencia y arreglo. Trae un script que prueba cada tabla con la clave pública | Al decir "vamos a lanzar", "¿está listo para producción?", "revisa antes de entregar" o "audita la seguridad" |
+| **entrega** | Lleva a un cliente de la demo a la operación: llena la oferta, el acuerdo y el acta del kit de Argonauta (en el repo privado `conocimiento`) y las deja en PDF; antes del acta revisa con evidencia que se cumplan las puertas, y después deja el seguimiento con la fecha de la primera auditoría | Al decir "prepara la oferta para X", "el cliente dijo que sí", "prepara el acta" o "¿estamos listos para entregar?" |
 | **seo-audit** | Audita el sitio en cinco frentes —indexación, rendimiento, on-page, contenido y autoridad— y devuelve cada hallazgo como problema → impacto → evidencia → arreglo → prioridad | Al hablar de SEO, posicionamiento, caídas de tráfico o Core Web Vitals |
 | **schema** | Datos estructurados JSON-LD para que Google muestre precio, stock y estrellas en los resultados | Al hablar de schema, datos estructurados, rich snippets o fichas de producto |
 
@@ -56,8 +57,8 @@ Las fases son las del Método de Proyectos: cada una termina cuando se cumple su
 | **1. Definir** | ¿Qué vamos a hacer, y qué no? | metis |
 | **2. Arrancar** | ¿El repo revisa solo cada cambio? | arranque |
 | **3. Construir** | ¿Funciona y se ve bien? | frontend-design · schema |
-| **4. Lanzar** | ¿Qué puede salir mal con gente real? | lanzamiento · seo-audit (si tiene que aparecer en Google) |
-| **5. Mantener** | ¿Sigue sano? | lanzamiento de nuevo, como auditoría, cada pocos meses · seo-audit |
+| **4. Lanzar** | ¿Qué puede salir mal con gente real? | lanzamiento · entrega (oferta y acuerdo antes de construir; puerta y acta al operar) · seo-audit (si tiene que aparecer en Google) |
+| **5. Mantener** | ¿Sigue sano? | lanzamiento de nuevo, como auditoría, cada pocos meses · entrega (si el servicio termina) · seo-audit |
 
 ### Skills de fuera que conviene instalar aparte
 

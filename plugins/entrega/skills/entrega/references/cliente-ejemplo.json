@@ -1,0 +1,37 @@
+{
+  "comun": {
+    "producto": "Sistema para gimnasios",
+    "cliente_negocio": "Gimnasio Ficticio",
+    "cliente_representante": "Persona Inventada",
+    "cliente_dni": "00000000",
+    "cliente_ruc": "10000000000",
+    "responsable_nombre": "Quien firma por Argonauta",
+    "responsable_ruc": "10999999999",
+    "responsable_whatsapp": "900 000 000",
+    "correo_argonauta": "argonautasistemas@gmail.com",
+    "plan": "Completo",
+    "modulos_del_plan": ["Caja y pagos", "Socios y vencimientos", "Panel del dueño", "Portal del socio"],
+    "precio_implementacion": "1500",
+    "precio_mensual": "220",
+    "ciudad": "Arequipa"
+  },
+  "oferta": {
+    "fecha": "12 de octubre de 2026",
+    "problema_con_sus_palabras": "Llevan los pagos en un cuaderno y no saben quién está vencido hasta que el socio llega.",
+    "solucion_en_dos_lineas": "Un sistema en el celular donde registran cada pago y ven al instante quién vence esta semana.",
+    "demo_url": "https://amyra-gym.pages.dev",
+    "plazo": "5 días hábiles"
+  },
+  "acuerdo": {
+    "fecha": "15 de octubre de 2026"
+  },
+  "acta": {
+    "fecha": "22 de octubre de 2026",
+    "fecha_operacion": "2026-10-22",
+    "url_del_sistema": "https://gimnasio-ficticio.pages.dev",
+    "correo_del_proyecto": "ficticio.sistema@gmail.com",
+    "datos_cargados": "80 socios y sus vencimientos",
+    "cuentas_del_equipo": "dueño y 2 recepcionistas",
+    "pendientes_con_fecha": ["Dominio propio: 29 de octubre"]
+  }
+}

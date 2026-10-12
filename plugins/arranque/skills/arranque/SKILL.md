@@ -1,6 +1,6 @@
 ---
 name: arranque
-description: Monta el esqueleto profesional de un proyecto web en su repositorio, nuevo o existente — CLAUDE.md, README, CI en cada PR, ESLint, Prettier, hooks de Claude Code, .gitignore/.gitattributes y la regla de dónde publicarlo — para que cada cambio pase por rama, PR y revisión automática. Úsala cuando digan "arranca el proyecto", "prepara el repo", "ponle el estándar a este proyecto", "deja este proyecto profesional", "configura CI / lint / formato", "aplica el método a X", o justo después de metis, cuando ya hay PROYECTO.md y falta el repo. También en inglés ("set up the repo", "add CI and linting", "bootstrap this project"). No la uses para definir la idea de un proyecto (eso es metis) ni para un cambio puntual dentro de un proyecto que ya tiene su estándar.
+description: Monta el esqueleto profesional de un proyecto web en su repositorio, nuevo o existente — CLAUDE.md, README, CI en cada PR, ESLint, Prettier, hooks de Claude Code, .gitignore/.gitattributes, la regla de dónde publicarlo y, si usa Supabase, el respaldo diario cifrado con su restauración — para que cada cambio pase por rama, PR y revisión automática. Úsala cuando digan "arranca el proyecto", "prepara el repo", "ponle el estándar a este proyecto", "deja este proyecto profesional", "configura CI / lint / formato", "ponle respaldo a la base", "aplica el método a X", o justo después de metis, cuando ya hay PROYECTO.md y falta el repo. También en inglés ("set up the repo", "add CI and linting", "bootstrap this project"). No la uses para definir la idea de un proyecto (eso es metis) ni para un cambio puntual dentro de un proyecto que ya tiene su estándar.
 ---
 
 # Arranque
@@ -23,6 +23,7 @@ todo lo que deja son cosas que obligan (CI, hooks), no documentos que sugieren.
 | Revisión automática | `.github/workflows/ci.yml`, plantilla de PR | Cada PR pasa lint, formato, tests y build antes del merge |
 | Publicación | Workflow de deploy según `references/hosting.md` | Se publica solo al mezclar en `main`, con tests antes |
 | Hooks de Claude Code | `.claude/settings.json`, `.claude/hooks/` | Formato al editar; tests antes de dar algo por terminado |
+| Respaldo (si usa Supabase) | `archivos/respaldo/`: workflow, scripts, tests, SQL y guía (ver `references/respaldo.md`) | Copia diaria cifrada desde el primer día, y una restauración que se verifica sola |
 | Instrucciones | `CLAUDE.md`, `README.md` | Cualquier sesión de Claude y cualquier persona entienden el proyecto |
 
 Los archivos listos para copiar están en `archivos/` (junto a este SKILL.md).
@@ -85,9 +86,10 @@ No más de cuatro preguntas, y solo las que cambian lo que vas a hacer:
    comercial y va a Cloudflare Pages. Si ya está publicado en un hosting que
    no lo permite, **dilo** y propón la mudanza como un PR aparte: no la
    mezcles con el esqueleto.
-2. **¿Maneja datos personales de clientes?** Si sí, avisa que el backup
-   cifrado y la revisión de qué se sube a dónde no son parte de este esqueleto:
-   van en el paso de lanzamiento. No lo resuelvas a medias acá.
+2. **¿Usa Supabase?** Si sí, el respaldo cifrado entra en el esqueleto
+   (`references/respaldo.md`): no se pregunta, porque un proyecto con base
+   de datos y sin respaldo no está terminado. La revisión de qué datos
+   personales se exponen sigue siendo del lanzamiento.
 3. **Voz de los textos** (tú / usted, país), si el producto le habla a usuarios.
 4. **Estilo de código**, solo en proyectos existentes: mide el estilo actual
    (comillas, punto y coma, ancho de línea) y ajusta `.prettierrc.json` para
@@ -126,7 +128,12 @@ cada uno se puede revisar solo y, si algo sale mal, se revierte solo.
 6. **Hooks.** Copia `.claude/settings.json` (si existe, fusiona los `hooks`) y
    `.claude/hooks/`. Ajusta `CARPETAS_DE_CODIGO` en `tests-al-terminar.mjs` a
    donde vive el código.
-7. **Instrucciones.** `CLAUDE.md` con `references/claude-md.md` y `README.md`
+7. **Respaldo** (si usa Supabase). Copia `archivos/respaldo/` siguiendo
+   `references/respaldo.md`: archivos, tests en verde y `.gitignore`. La
+   clave `BACKUP_CLAVE` y los secretos los carga la persona, no tú: dile
+   cómo y que la guarde primero en su gestor de contraseñas. Avisa que el
+   simulacro de restauración es parte de la puerta de `lanzamiento`.
+8. **Instrucciones.** `CLAUDE.md` con `references/claude-md.md` y `README.md`
    con `references/readme.md`. Cada línea se comprueba en el código antes de
    escribirla. Si ya hay README, actualízalo: no lo pises.
 
@@ -173,7 +180,8 @@ archivo que edite tiene que quedar formateado solo.
   comportamiento.
 - **No muda el hosting** de un proyecto que ya publica: lo recomienda, y la
   mudanza es otro PR.
-- **No configura backups ni revisa datos personales**: eso es del lanzamiento.
+- **No revisa qué datos personales quedan expuestos** ni hace el simulacro
+  de restauración: eso es del lanzamiento. El respaldo sí lo deja armado.
 - **No toca migraciones de base de datos ya aplicadas.**
 - **Nunca escribe claves**: ni en archivos que se suben ni en el chat.
 

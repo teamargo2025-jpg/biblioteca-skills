@@ -1,0 +1,78 @@
+# Copia de seguridad diaria de los datos.
+#
+# El plan gratuito de Supabase no tiene recuperacion a un punto en el
+# tiempo: si se borra una tabla o alguien lanza un delete sin where, no
+# hay a donde volver. Esto es esa red.
+#
+# La estructura (tablas, funciones, politicas RLS) NO se respalda aca
+# porque ya vive versionada en supabase/schema.sql y supabase/migrations/.
+# Lo que se respalda son los datos, que es lo unico que no se puede
+# volver a escribir a mano.
+#
+# PARA QUE FUNCIONE hay que cargar tres secretos en el repositorio:
+# Settings -> Secrets and variables -> Actions -> New repository secret.
+#
+#   SUPABASE_URL          la direccion del proyecto (https://xxx.supabase.co)
+#   SUPABASE_SERVICE_KEY  la clave de servicio (service_role)
+#   BACKUP_CLAVE          la clave con la que se cifra la copia
+#
+# Las dos primeras salen de Supabase: Settings -> API. BACKUP_CLAVE se
+# genera una vez y se guarda TAMBIEN en Bitwarden: sin ella las copias no se
+# pueden abrir (docs/restaurar-backup.md).
+#
+# La copia va cifrada porque suele traer datos personales (nombres,
+# telefonos, DNI) y cualquiera con acceso al repo puede bajar los artifacts:
+# en un repo publico, cualquier persona con cuenta de GitHub.
+#
+# Y despues hay que correrlo UNA VEZ a mano desde la pestana Actions y
+# bajarse el resultado. Una copia que nunca se probo no es una copia.
+
+name: Copia de seguridad de la base
+
+on:
+  schedule:
+    # 09:00 UTC = 04:00 en Peru, con el negocio cerrado y la caja del
+    # dia ya cerrada.
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Bajar los datos
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          BACKUP_CLAVE: ${{ secrets.BACKUP_CLAVE }}
+        run: node scripts/backup-datos.mjs
+
+      # Segunda barrera, independiente del script: en la carpeta solo puede
+      # haber la copia cifrada y el resumen (conteos, sin datos). Cualquier
+      # otro archivo, sea una tabla o una imagen, frena la subida.
+      - name: Comprobar que no hay datos en claro
+        run: |
+          en_claro=$(find copia -type f ! -name 'copia.cifrada' ! -name '_resumen.json')
+          if [ -n "$en_claro" ]; then
+            echo "Hay archivos sin cifrar en la copia: $en_claro"
+            exit 1
+          fi
+          test -s copia/copia.cifrada
+
+      - name: Guardar la copia
+        uses: actions/upload-artifact@v4
+        with:
+          name: copia-cifrada-${{ github.run_id }}
+          path: |
+            copia/copia.cifrada
+            copia/_resumen.json
+          # 90 dias es el maximo que guarda GitHub. Alcanza de sobra para
+          # un "borre algo sin querer"; para conservar un cierre contable
+          # de hace anos hay que bajarlo y guardarlo aparte.
+          retention-days: 90

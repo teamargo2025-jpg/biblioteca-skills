@@ -49,11 +49,20 @@ preguntas solo lo que no esté escrito:
 El detalle de cada uno (qué mirar, con qué comando, qué cuenta como
 problema) está en `references/frentes.md`. Resumen:
 
-1. **Qué ve alguien sin sesión.** Corre `scripts/acceso-anonimo.mjs` desde
-   la carpeta del proyecto: prueba cada tabla con la clave pública, también
-   columna por columna. Después revisa a mano cada función `security
-   definer` expuesta y cada política `using (true)`. Es el frente que más
-   muerde: ver `references/casos.md`.
+1. **Qué ve y qué hace alguien sin sesión.**
+   1. Primero la **radiografía** de `references/frentes.md` en el SQL
+      Editor: todas las tablas, las políticas de escritura, las funciones y
+      los buckets, sin leer datos de nadie.
+   2. Después `scripts/acceso-anonimo.mjs` desde la carpeta del proyecto,
+      con `--tablas` para las que la base tiene y el repo no. El script:
+      - mira si el registro de cuentas está abierto;
+      - lee cada tabla, también columna por columna;
+      - prueba si acepta escrituras con una fila imposible, que la base
+        siempre rechaza;
+      - lista los buckets.
+   3. Revisa a mano cada función `security definer` expuesta.
+
+   Es el frente que más muerde: ver `references/casos.md`.
 2. **Secretos.** En los archivos y en todo el historial de git. La clave de
    servicio nunca en el navegador ni en el repo.
 3. **Dinero.** Que el precio, el total y el stock los calcule la base, no el
@@ -70,7 +79,13 @@ problema) está en `references/frentes.md`. Resumen:
 7. **Publicación.** Que **producción tenga lo que el repo dice**: cada
    migración aplicada, cada función desplegada, cada secreto cargado (los
    tests corren todas las migraciones; producción, solo las que alguien
-   pegó). Hosting que permita el uso (regla de
+   pegó). Además, **lo que vive en el panel y no en el repo**:
+   - URLs de Auth, registro público, SMTP propio y roles;
+   - que el dueño pueda cambiar y recuperar su contraseña, y que el admin sea
+     él, con su propio correo;
+   - que los datos de prueba se borren antes de los reales.
+
+   Y el resto: hosting que permita el uso (regla de
    `arranque/references/hosting.md`), deploy automático con tests, y que lo
    que la gente guarda (QR impresos, apps instaladas, links) no dependa de
    una dirección que va a cambiar.
@@ -82,7 +97,7 @@ evidencia** (el comando y lo que devolvió), y **el arreglo propuesto**.
 
 | Gravedad | Cuándo |
 |---|---|
-| **Bloquea** | Datos de una persona visibles para otra o para cualquiera; dinero manipulable desde el navegador; un secreto filtrado; datos que no se pueden volver a escribir sin respaldo; hosting que prohíbe el uso; **lo que la app promete como su razón de ser no funciona en producción** (en Gonthia, los avisos de plazo), salvo que el dueño decida lanzar sin eso y lo diga. |
+| **Bloquea** | Datos de una persona visibles para otra o para cualquiera; dinero manipulable desde el navegador; un secreto filtrado; datos que no se pueden volver a escribir sin respaldo; hosting que prohíbe el uso; el dueño no puede cambiar una contraseña que conoce el desarrollador; **lo que la app promete como su razón de ser no funciona en producción** (en Gonthia, los avisos de plazo), salvo que el dueño decida lanzar sin eso y lo diga. |
 | **Antes de una semana** | Respaldo sin restaurar nunca; nadie se entera de los errores; datos personales en un respaldo sin cifrar en un repo privado; escrituras abiertas que dejan tocar filas ajenas conociendo un id. |
 | **Mejora** | Lo demás: mensajes de error, íconos, textos, rendimiento. |
 
@@ -106,7 +121,11 @@ simulados sirve (hay ejemplos en Gonthia, Chincha-Inventario y Amira).
 Para lanzar, todo esto tiene que ser verdad, y comprobado, no supuesto:
 
 - Ningún hallazgo "Bloquea" abierto.
-- `acceso-anonimo.mjs` solo muestra tablas que el dueño publicaría en un cartel.
+- `acceso-anonimo.mjs`, con las tablas de la radiografía, solo muestra
+  tablas que el dueño publicaría en un cartel, y cada tabla escribible sin
+  sesión tiene una razón y un tope.
+- El dueño puede cambiar y recuperar su contraseña, el admin es él con su
+  propio correo, y los datos de prueba ya no están.
 - El respaldo corrió y se restauró una vez en un proyecto aparte.
 - Hay una forma concreta de enterarse de un error en producción.
 - Las cuentas ya están en la casa del proyecto (su propio correo), no en el

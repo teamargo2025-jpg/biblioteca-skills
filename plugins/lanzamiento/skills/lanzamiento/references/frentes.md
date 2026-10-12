@@ -10,8 +10,23 @@ reglas en la base).
 La clave pública (anon / publishable) está dentro del JavaScript del sitio:
 cualquiera la tiene. La única protección real son las reglas de la base.
 
-- `node <skill>/scripts/acceso-anonimo.mjs` — prueba cada tabla con la clave
-  pública, entera y columna por columna. Solo lee.
+- `node <skill>/scripts/acceso-anonimo.mjs [--tablas a,b]` hace lo que haría
+  un curioso con la clave pública:
+  - mira si el **registro de cuentas** está abierto;
+  - **lee** cada tabla, entera y columna por columna;
+  - intenta **escribir** una fila imposible (la clave primaria en null, ids
+    inventados en las columnas `*_id`): la base la rechaza siempre, pero el
+    código del rechazo dice si la seguridad la dejó pasar (`42501` =
+    cerrada; `23502`, `23503` o `23514` = abierta);
+  - **lista** los archivos de cada bucket de Storage.
+
+  No escribe nada, no borra, no sube archivos y no imprime valores.
+- **Las tablas que el repo no conoce no se prueban solas:** con la clave
+  pública no se pueden listar. Correr antes la **radiografía** de abajo en el
+  SQL Editor (o mirar el aviso "Ojo: estas tablas existen en la base pero no
+  en el esquema del repo" del backup) y pasarlas con `--tablas`. En Amira
+  había tres tablas y dos buckets de una plantilla vieja que el script no
+  veía.
 - Por cada tabla **LEGIBLE**, preguntarse si el dueño la publicaría en un
   cartel. Una carta de restaurante, sí. Socios, clientes, pedidos, medidas,
   movimientos de caja: no.
@@ -25,7 +40,52 @@ cualquiera la tiene. La única protección real son las reglas de la base.
   puerta abierta, a propósito o no. Y cada función `security definer`
   expuesta a `anon`: qué recibe, qué devuelve, qué deja hacer.
 - **Escrituras:** que nadie pueda tocar filas ajenas, ni muchas de una vez
-  (un `delete` sin filtro que la regla deja pasar).
+  (un `delete` sin filtro que la regla deja pasar). Cada tabla
+  **ESCRIBIBLE** sin sesión necesita una razón (el portal de un socio que
+  entra con su link) y un tope; si no, se pasa a una función que valide
+  (como `socio_*` en Amira).
+- **Registro abierto:** si las cuentas las crea el dueño o el desarrollador,
+  el registro público se cierra (Authentication → Sign In / Providers →
+  *Allow new users to sign up*). Crear cuentas desde una función con la
+  clave de servicio sigue funcionando.
+
+### Radiografía desde adentro
+
+Para correr en el SQL Editor del proyecto. Solo lee la estructura, nunca
+filas de personas, así que el resultado se puede pegar en el informe.
+
+```sql
+-- 1. Todas las tablas, si tienen RLS y cuántas políticas
+select c.relname as tabla, c.relrowsecurity as rls, count(p.policyname) as politicas
+from pg_class c
+join pg_namespace n on n.oid = c.relnamespace
+left join pg_policies p on p.schemaname = 'public' and p.tablename = c.relname
+where n.nspname = 'public' and c.relkind = 'r'
+group by 1, 2 order by 1;
+
+-- 2. Políticas que dejan escribir a anon o a todos (leer qual y with_check)
+select schemaname, tablename, policyname, cmd, roles, qual, with_check
+from pg_policies
+where schemaname in ('public', 'storage') and cmd <> 'SELECT'
+  and (roles::text like '%anon%' or roles::text like '%public%');
+
+-- 3. Funciones security definer que anon puede ejecutar
+select p.proname from pg_proc p
+join pg_namespace n on n.oid = p.pronamespace
+where n.nspname = 'public' and p.prosecdef
+  and has_function_privilege('anon', p.oid, 'execute')
+order by 1;
+
+-- 4. Buckets de Storage
+select id, public from storage.buckets order by 1;
+```
+
+- Una tabla con `rls = false` está abierta del todo: **Bloquea** si tiene
+  algo que no sea público.
+- Una tabla que no está en el repo: o se agrega con una migración, o se
+  borra. Si queda, se prueba con `--tablas`.
+- El panel de Supabase tiene además **Advisors → Security**, que avisa de
+  tablas sin RLS y funciones sin `search_path` fijo. Mirarlo también.
 
 ## 2. Secretos
 
@@ -80,7 +140,13 @@ son "sensibles": más cuidado todavía.
 - **Respaldos con datos personales:** si el repo es público, cifrados sí o
   sí (un artifact de Actions se puede descargar). Si es privado y hay datos
   sensibles, cifrados también. Plantilla: `scripts/cifrado-copia.mjs` y
-  `backup.yml` de Saviare (AES-256-GCM con una clave en un secreto).
+  `backup.yml` de Saviare o de Amira (AES-256-GCM con una clave en un
+  secreto, y un paso del workflow que frena la subida si queda un archivo
+  en claro).
+- **Credenciales reales en la PC del desarrollador:** contraseñas de cuentas
+  del cliente o claves de otros sistemas en un `.env` local van a un gestor
+  (Bitwarden) y se borran del archivo. Si el `.env` tiene algo más que la
+  URL y la clave pública, preguntar por qué.
 
 ## 5. Respaldo
 
@@ -134,6 +200,33 @@ son "sensibles": más cuidado todavía.
   personal del desarrollador son "Antes de una semana"; mudar después de
   imprimir QR o repartir links cambia la dirección. Cómo:
   `arranque/references/cuentas.md`.
+- **Lo que vive en el panel, fuera del repo.** Ningún test lo cubre y nadie
+  lo ve en un PR, así que se revisa a mano antes de entregar:
+
+  | Qué | Dónde | Qué tiene que decir |
+  |---|---|---|
+  | Site URL | Authentication → URL Configuration | La dirección real de la app |
+  | Redirect URLs | Mismo lugar | `https://<la-app>/**`, para que el link de recuperación vuelva a la app |
+  | Registro público | Authentication → Sign In / Providers | Cerrado, salvo que la app sea de registro libre |
+  | Correo (SMTP) | Authentication → Emails → SMTP | Un SMTP propio si la app manda correos (recuperar contraseña, confirmar cuenta): **el SMTP por defecto de Supabase solo envía a los miembros de la organización**, así que al cliente y a su equipo no les llega nada |
+  | Roles en la organización | Organization → Team | El correo del proyecto como Owner; el desarrollador como Developer (`arranque/references/cuentas.md`) |
+
+- **Las llaves de la app son del cliente.** El dueño tiene que poder:
+  - **cambiar su contraseña** desde la app;
+  - **recuperarla** sin pedírsela a nadie.
+
+  Si la puso el desarrollador y no hay forma de cambiarla, el desarrollador
+  la conoce para siempre: **Bloquea** la entrega. El admin del sistema es el
+  dueño, **con su propio correo**. Una cuenta admin con el correo
+  institucional o personal de alguien del equipo se reemplaza el día de la
+  entrega, primero creando la del dueño y recién después quitando la otra,
+  porque siempre tiene que quedar un admin.
+- **Los datos de prueba se borran antes de los reales.** Socios inventados,
+  ventas de demo o catálogo de ejemplo en producción terminan mezclados con
+  lo del cliente. El día de la entrega, con un respaldo recién tomado, se
+  vacía lo de prueba y se comprueba que quedó en cero.
+- **Los demos de venta no viven en la cuenta de un cliente.** Van en una
+  cuenta aparte, solo para demos, con datos inventados.
 - Hosting que permita el uso: comercial → Cloudflare Pages (ver
   `arranque/references/hosting.md`).
 - Deploy automático al mezclar, con tests antes. Nada de `npm run deploy`

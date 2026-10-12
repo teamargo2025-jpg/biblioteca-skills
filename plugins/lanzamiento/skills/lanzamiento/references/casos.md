@@ -69,3 +69,33 @@ cambio simplemente no se aplica) y cualquier usuario podía cambiar el estado
 de una venta sin dejar historial. Además el backup nunca había corrido por
 falta de un secreto. Se detectó pidiendo a la base real una tabla de la
 0005 (`avisos_enviados`: no existe) y la Edge Function (404).
+
+## Amira, el día antes de entregar (11 de octubre de 2026)
+
+La segunda revisión, ya con lo de arriba arreglado, no encontró datos
+expuestos. Encontró lo que **no está en el código**, que ningún test ve:
+
+- **Nadie podía cambiar ni recuperar su contraseña — Bloquea.** La del dueño
+  la había puesto el desarrollador y además estaba escrita en su `.env`
+  local. Sin un botón para cambiarla, "las llaves son del cliente" era falso.
+  Arreglo: cambiar contraseña con la sesión abierta y "olvidé mi
+  contraseña" en el login, con su Site URL y Redirect URL en Supabase.
+- **El correo de recuperación no le llegaba a nadie.** El SMTP por defecto
+  de Supabase solo envía a los miembros de la organización. Para el cliente
+  hace falta un SMTP propio.
+- **El registro público estaba abierto.** Una cuenta nueva no veía nada
+  (sin perfil de personal no pasa las reglas), pero no había razón para
+  permitirla.
+- **El admin del sistema usaba el correo institucional de alguien del
+  equipo**, no el del dueño.
+- **Dos tablas aceptaban escrituras sin sesión** para cualquier socio
+  (`asistencias`, `registros_series`): la seguridad las dejaba pasar y solo
+  las frenaba la clave foránea. A propósito, para el portal del socio, pero
+  sin tope — Mejora.
+- **Tres tablas y dos buckets de una plantilla vieja** existían en
+  producción y no en el repo. El script no las probaba porque las tablas
+  salen del repo: de ahí la radiografía y `--tablas`.
+- **La demo de venta para otro gimnasio vivía en la cuenta del cliente.** Se
+  mudó a una cuenta solo para demos antes de entregar.
+- **Todo lo que había en producción era de prueba** (socios, caja,
+  catálogo): se vacía el día de la entrega, antes de cargar lo real.

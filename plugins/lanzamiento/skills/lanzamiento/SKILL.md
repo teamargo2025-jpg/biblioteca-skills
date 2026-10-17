@@ -71,16 +71,22 @@ problema) está en `references/frentes.md`. Resumen:
 4. **Datos personales.** Qué se guarda, quién lo ve, si hay política de
    privacidad, si la persona puede borrar su cuenta, y si el respaldo los
    sube sin cifrar a algún lado.
-5. **Respaldo.** Que exista, que haya corrido, y que **se haya restaurado al
-   menos una vez**. Una copia que nunca se restauró no es una copia.
-6. **Cómo te enteras de un error.** Si algo falla en el celular de un
-   usuario, ¿quién se entera, y cuándo? "Me avisa por WhatsApp" es una
-   respuesta válida para cinco usuarios, no para cien.
+5. **Respaldo.** Que exista **en todo proyecto con datos reales**, que haya
+   corrido, que alguien reciba el aviso si falla, y que **se haya restaurado
+   al menos una vez**. Una copia que nunca se restauró no es una copia.
+6. **Cómo te enteras de un error, y qué pasa si algo sale mal.** Si algo
+   falla en el celular de un usuario, ¿quién se entera, y cuándo? "Me avisa
+   por WhatsApp" es una respuesta válida para cinco usuarios, no para cien.
+   También: si la app se cae, si el respaldo falla, quién hizo qué en la caja,
+   y el plan de incidentes.
 7. **Publicación.** Que **producción tenga lo que el repo dice**: cada
    migración aplicada, cada función desplegada, cada secreto cargado (los
    tests corren todas las migraciones; producción, solo las que alguien
    pegó). Además, **lo que vive en el panel y no en el repo**:
-   - URLs de Auth, registro público, SMTP propio y roles;
+   - URLs de Auth, registro público, SMTP propio, largo de contraseña,
+     límite de intentos, roles y 2FA;
+   - cabeceras de seguridad en el sitio publicado
+     (`scripts/cabeceras-en-linea.mjs`);
    - que el dueño pueda cambiar y recuperar su contraseña, y que el admin sea
      él, con su propio correo;
    - que los datos de prueba se borren antes de los reales.
@@ -98,8 +104,13 @@ evidencia** (el comando y lo que devolvió), y **el arreglo propuesto**.
 | Gravedad | Cuándo |
 |---|---|
 | **Bloquea** | Datos de una persona visibles para otra o para cualquiera; dinero manipulable desde el navegador; un secreto filtrado; datos que no se pueden volver a escribir sin respaldo; hosting que prohíbe el uso; el dueño no puede cambiar una contraseña que conoce el desarrollador; **lo que la app promete como su razón de ser no funciona en producción** (en Gonthia, los avisos de plazo), salvo que el dueño decida lanzar sin eso y lo diga. |
-| **Antes de una semana** | Respaldo sin restaurar nunca; nadie se entera de los errores; datos personales en un respaldo sin cifrar en un repo privado; escrituras abiertas que dejan tocar filas ajenas conociendo un id. |
-| **Mejora** | Lo demás: mensajes de error, íconos, textos, rendimiento. |
+| **Antes de una semana** | Respaldo sin restaurar nunca; nadie se entera de los errores, de las caídas ni de un respaldo que falla; datos personales en un respaldo sin cifrar en un repo privado; escrituras abiertas que dejan tocar filas ajenas conociendo un id; **cabeceras de seguridad incompletas**; contraseñas de menos de 8 caracteres o sin límite de intentos; borrados en la caja sin registro de quién los hizo; librerías con vulnerabilidades altas. |
+| **Mejora** | Lo demás: 2FA del admin dentro de la app, accesibilidad bajo 90, mensajes de error, íconos, textos, rendimiento. |
+
+Para que ningún frente se quede sin mirar, la vara completa está en el
+estándar de calidad y seguridad de Argonauta
+(`conocimiento/estandar/calidad-y-seguridad.md`): al cerrar, decir qué
+puntos de ese estándar cumple el proyecto y cuáles no.
 
 Dilo con números cuando los tengas ("76 mediciones de 114 socios legibles sin
 sesión"), y lo que **no** probaste a propósito (por ejemplo, no abrir el
@@ -126,8 +137,12 @@ Para lanzar, todo esto tiene que ser verdad, y comprobado, no supuesto:
   sesión tiene una razón y un tope.
 - El dueño puede cambiar y recuperar su contraseña, el admin es él con su
   propio correo, y los datos de prueba ya no están.
-- El respaldo corrió y se restauró una vez en un proyecto aparte.
-- Hay una forma concreta de enterarse de un error en producción.
+- El respaldo **diario** existe, corrió y se restauró una vez en un
+  proyecto aparte, y alguien recibe el aviso si falla.
+- `cabeceras-en-linea.mjs` en verde sobre el sitio publicado.
+- Hay una forma concreta de enterarse de un error y de una caída en
+  producción, y el dueño sabe a quién avisar si algo sale mal (plan de
+  incidentes).
 - Las cuentas ya están en la casa del proyecto (su propio correo), no en el
   entorno de desarrollo ni en un correo institucional
   (`arranque/references/cuentas.md`).

@@ -1,8 +1,19 @@
-# Revision de cada Pull Request antes del merge: lint, formato, tests y build.
+# Revision de cada Pull Request antes del merge.
 #
 # Corre en cada PR hacia main. GitHub muestra el resultado en el PR y avisa en
 # el boton de merge si algo fallo: un error se ve aca, antes de llegar a
 # produccion. No se mezcla un PR con la revision en rojo.
+#
+# Tres trabajos en paralelo:
+#   revisar     lint, formato, tests, dependencias vulnerables, build y
+#               cabeceras de seguridad.
+#   secretos    gitleaks busca llaves, tokens o contrasenas en todo el
+#               historial: un secreto se frena antes de entrar a main.
+#   lighthouse  accesibilidad (frena si baja de 90), rendimiento, buenas
+#               practicas y SEO (avisan). El informe queda como artifact del
+#               PR, nunca publicado afuera.
+# Referencia: conocimiento/estandar/calidad-y-seguridad.md (3.1, 4.2, 5.1,
+# 10.4 y 10.5).
 
 name: CI
 
@@ -41,6 +52,12 @@ jobs:
       - name: Tests
         run: npm test
 
+      # Solo las dependencias que llegan al usuario (--omit=dev), y solo
+      # vulnerabilidades altas o criticas: las bajas se ven en Dependabot sin
+      # frenar el trabajo.
+      - name: Dependencias sin vulnerabilidades altas
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Build
         run: npm run build
         # Si el build necesita variables (por ejemplo las de Supabase), se
@@ -49,3 +66,56 @@ jobs:
         # env:
         #   VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
         #   VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      # Revisa el _headers que se va a publicar (Vite copia public/ a dist/).
+      - name: Cabeceras de seguridad
+        run: node scripts/revisar-cabeceras.mjs dist/_headers
+
+  secretos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout con historial completo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Se corre la imagen oficial de gitleaks y no su "action": la action
+      # pide una licencia para repos de organizaciones; la imagen no.
+      # --redact: si encuentra algo, el log muestra donde, nunca el valor.
+      - name: Buscar secretos
+        run: >
+          docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:v8.21.2
+          detect --source /repo --redact --no-banner -v
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        # Las mismas variables que el build de arriba, si hacen falta.
+
+      # Mide las paginas de dist/ servidas localmente (lighthouserc.json).
+      # En una app con login mide la pantalla de entrada: igual sirve para
+      # contraste, etiquetas y peso de la pagina.
+      - name: Lighthouse
+        run: npx --yes @lhci/cli@0.14.0 autorun
+
+      - name: Guardar el informe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse
+          path: .lighthouseci/
+          retention-days: 14

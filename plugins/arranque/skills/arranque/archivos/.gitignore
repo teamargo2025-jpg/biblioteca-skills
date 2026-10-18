@@ -12,3 +12,8 @@ dist/
 
 # Configuracion personal de Claude Code (la compartida es .claude/settings.json).
 .claude/settings.local.json
+
+# Informes de Lighthouse de la CI y copias del respaldo (cifradas o no, nunca se suben).
+.lighthouseci/
+copia/
+.env.restauracion

@@ -1,0 +1,32 @@
+# Dependabot: avisa de librerías con vulnerabilidades y abre PRs para
+# actualizarlas. Cada PR pasa por la CI como cualquier otro: si rompe algo,
+# queda en rojo y no se mezcla.
+#
+# Agrupa las actualizaciones menores en un solo PR por semana para que no se
+# junten decenas. Las mayores (que pueden romper cosas) vienen sueltas.
+# Referencia: conocimiento/estandar/calidad-y-seguridad.md (5.2).
+
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: America/Lima
+    open-pull-requests-limit: 5
+    groups:
+      menores:
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      acciones:
+        patterns:
+          - '*'

@@ -1,0 +1,36 @@
+# Cabeceras de seguridad para Cloudflare Pages (Vite copia este archivo a dist/).
+#
+# El navegador las recibe con cada página y le dicen qué puede hacer con ella.
+# Son la segunda barrera: si algún día se cuela un error en el código (por
+# ejemplo, un nombre con <script> que no se escapó), el navegador no ejecuta
+# nada que no venga de los lugares de abajo.
+#
+# AJUSTAR A CADA PROYECTO antes de mezclar, y probar en el navegador (F12 →
+# Console muestra "Refused to..." si falta algo):
+#   - connect-src: la URL de Supabase ya está con comodín. Otra API, agregarla.
+#   - img-src: las imágenes de Supabase Storage ya están. Otro origen, agregarlo.
+#   - frame-src: si la app muestra videos de YouTube, descomentar la línea de
+#     YouTube y agregarla a la CSP.
+#   - Permissions-Policy: si la app usa la cámara (leer QR), cambiar
+#     camera=() por camera=(self). Lo mismo con micrófono o ubicación.
+#   - font-src / style-src: Google Fonts ya está. Otras fuentes, agregarlas.
+#
+# El CI revisa con scripts/revisar-cabeceras.mjs que estén las obligatorias.
+# Referencia: estandar/calidad-y-seguridad.md (punto 3.1) en conocimiento.
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src 'none'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
+  Strict-Transport-Security: max-age=63072000; includeSubDomains
+
+# Para videos de YouTube, en la CSP de arriba cambiar frame-src 'none' por:
+#   frame-src https://www.youtube.com https://www.youtube-nocookie.com
+
+# El service worker nunca se guarda en caché: si se guardara, una versión
+# vieja podría quedarse sirviendo la app durante días.
+/sw.js
+  Cache-Control: no-cache

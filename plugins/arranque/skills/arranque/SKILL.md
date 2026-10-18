@@ -21,6 +21,7 @@ todo lo que deja son cosas que obligan (CI, hooks), no documentos que sugieren.
 | Base del repo | `.gitignore`, `.gitattributes`, `.env.example` | Claves fuera de git; mismos saltos de línea en Windows y en la CI |
 | Calidad | `eslint.config.js`, `.prettierrc.json`, `.prettierignore`, scripts `lint` / `format` / `test` | Errores y formato los revisa una máquina |
 | Revisión automática | `.github/workflows/ci.yml`, plantilla de PR | Cada PR pasa lint, formato, tests y build antes del merge |
+| Seguridad y calidad automáticas | `public/_headers`, `scripts/revisar-cabeceras.mjs`, trabajos `secretos` y `lighthouse` de la CI, `lighthouserc.json`, `.github/dependabot.yml` (ver `references/seguridad-automatica.md`) | Cabeceras de seguridad, dependencias vulnerables, secretos y accesibilidad los frena una máquina |
 | Publicación | Workflow de deploy según `references/hosting.md` | Se publica solo al mezclar en `main`, con tests antes |
 | Hooks de Claude Code | `.claude/settings.json`, `.claude/hooks/` | Formato al editar; tests antes de dar algo por terminado |
 | Respaldo (si usa Supabase) | `archivos/respaldo/`: workflow, scripts, tests, SQL y guía (ver `references/respaldo.md`) | Copia diaria cifrada desde el primer día, y una restauración que se verifica sola |
@@ -125,6 +126,12 @@ cada uno se puede revisar solo y, si algo sale mal, se revierte solo.
    Si el proyecto es nuevo, usa `deploy-cloudflare.yml` (ver
    `references/hosting.md`). Cloudflare tiene que quedar configurado antes del
    primer merge, o el deploy de `main` sale en rojo: dilo antes del PR.
+   **Seguridad y calidad automáticas** (siempre, en todo proyecto web): copia
+   `public/_headers`, `scripts/revisar-cabeceras.mjs` con su test,
+   `lighthouserc.json` y `.github/dependabot.yml`, siguiendo
+   `references/seguridad-automatica.md`. **Ajusta la CSP a lo que el proyecto
+   usa de verdad** (cámara, videos, APIs) y pruébala en el navegador: una CSP
+   mal ajustada no rompe el build, rompe la página.
 6. **Hooks.** Copia `.claude/settings.json` (si existe, fusiona los `hooks`) y
    `.claude/hooks/`. Ajusta `CARPETAS_DE_CODIGO` en `tests-al-terminar.mjs` a
    donde vive el código.

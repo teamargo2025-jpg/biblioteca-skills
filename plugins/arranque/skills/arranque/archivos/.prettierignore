@@ -7,3 +7,4 @@ package-lock.json
 #   entre etiquetas y eso puede cambiar como se ve). Se incorpora despues, en
 #   un PR propio, revisando cada pagina en el navegador.
 # - supabase/ si las migraciones ya estan aplicadas: no se tocan.
+.lighthouseci/

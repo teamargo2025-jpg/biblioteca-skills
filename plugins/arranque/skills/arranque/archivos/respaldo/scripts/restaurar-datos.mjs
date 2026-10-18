@@ -31,6 +31,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { huella, reescribirUrlsStorage, rutaEnUrl } from './archivos-storage.mjs';
 import { descifrar } from './cifrado-copia.mjs';
 import { dependencias, ordenDeCarga } from './orden-de-carga.mjs';
+import { sqlDelRepo } from './sql-del-repo.mjs';
 
 const ORIGEN = 'copia';
 
@@ -57,7 +58,14 @@ const fallar = (mensaje) => {
 };
 
 const { DESTINO_URL, DESTINO_SERVICE_KEY, BACKUP_CLAVE } = await leerEnv('.env.restauracion');
-const { VITE_SUPABASE_URL: PRODUCCION } = await leerEnv('.env');
+// La base de produccion puede estar en .env o en .env.local (o en las dos,
+// segun el proyecto): se juntan todas para que la proteccion no falle en
+// silencio.
+const PRODUCCIONES = [
+  (await leerEnv('.env')).VITE_SUPABASE_URL,
+  (await leerEnv('.env.local')).VITE_SUPABASE_URL,
+  (await leerEnv('.env.production')).VITE_SUPABASE_URL
+].filter(Boolean);
 
 if (!DESTINO_URL || !DESTINO_SERVICE_KEY || DESTINO_URL.includes('xxxxxxxx')) {
   fallar('Completa DESTINO_URL y DESTINO_SERVICE_KEY en .env.restauracion.');
@@ -72,7 +80,13 @@ const host = (url) => {
 };
 
 if (!host(DESTINO_URL)) fallar(`DESTINO_URL no es una URL valida: ${DESTINO_URL}`);
-if (PRODUCCION && host(DESTINO_URL) === host(PRODUCCION)) {
+if (!PRODUCCIONES.length) {
+  fallar(
+    'No encontre VITE_SUPABASE_URL en .env, .env.local ni .env.production, asi que no\n' +
+      '  puedo comprobar que el destino no sea produccion. No se hizo ningun cambio.'
+  );
+}
+if (PRODUCCIONES.some((p) => host(DESTINO_URL) === host(p))) {
   fallar(
     'DESTINO_URL es la base de PRODUCCION. Este script solo escribe en un proyecto\n' +
       '  de prueba o en uno nuevo. No se hizo ningun cambio.'
@@ -199,18 +213,9 @@ const enCopia = Object.keys(archivos)
   .map((f) => f.replace(/\.json$/, ''));
 if (!enCopia.length) fallar(`${ORIGEN}/ no tiene ninguna tabla.`);
 
-// Cada tabla despues de las que apunta, deducido del SQL del repo.
-// schema.sql es opcional: hay proyectos que solo tienen migraciones.
-const sqlDelRepo = [];
-try {
-  sqlDelRepo.push(await readFile('supabase/schema.sql', 'utf8'));
-} catch {
-  // Sin schema.sql: todo esta en las migraciones.
-}
-for (const f of (await readdir('supabase/migrations')).filter((f) => f.endsWith('.sql')).sort()) {
-  sqlDelRepo.push(await readFile(`supabase/migrations/${f}`, 'utf8'));
-}
-const deps = dependencias(sqlDelRepo);
+// Cada tabla despues de las que apunta, deducido del SQL del repo (en el
+// mismo orden que usa el test: scripts/sql-del-repo.mjs).
+const deps = dependencias(sqlDelRepo().map((s) => s.sql));
 
 // La copia trae todas las tablas que tiene la base, incluidas las que alguien
 // creo a mano y nunca pasaron por el repo (restos de una plantilla, la tabla

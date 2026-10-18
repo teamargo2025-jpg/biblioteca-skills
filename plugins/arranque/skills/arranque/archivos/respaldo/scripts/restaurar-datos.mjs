@@ -31,6 +31,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { huella, reescribirUrlsStorage, rutaEnUrl } from './archivos-storage.mjs';
 import { descifrar } from './cifrado-copia.mjs';
 import { dependencias, ordenDeCarga } from './orden-de-carga.mjs';
+import { sqlDelRepo } from './sql-del-repo.mjs';
 
 const ORIGEN = 'copia';
 
@@ -199,18 +200,9 @@ const enCopia = Object.keys(archivos)
   .map((f) => f.replace(/\.json$/, ''));
 if (!enCopia.length) fallar(`${ORIGEN}/ no tiene ninguna tabla.`);
 
-// Cada tabla despues de las que apunta, deducido del SQL del repo.
-// schema.sql es opcional: hay proyectos que solo tienen migraciones.
-const sqlDelRepo = [];
-try {
-  sqlDelRepo.push(await readFile('supabase/schema.sql', 'utf8'));
-} catch {
-  // Sin schema.sql: todo esta en las migraciones.
-}
-for (const f of (await readdir('supabase/migrations')).filter((f) => f.endsWith('.sql')).sort()) {
-  sqlDelRepo.push(await readFile(`supabase/migrations/${f}`, 'utf8'));
-}
-const deps = dependencias(sqlDelRepo);
+// Cada tabla despues de las que apunta, deducido del SQL del repo (en el
+// mismo orden que usa el test: scripts/sql-del-repo.mjs).
+const deps = dependencias(sqlDelRepo().map((s) => s.sql));
 
 // La copia trae todas las tablas que tiene la base, incluidas las que alguien
 // creo a mano y nunca pasaron por el repo (restos de una plantilla, la tabla

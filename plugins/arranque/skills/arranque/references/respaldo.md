@@ -21,6 +21,7 @@ simulacro de la puerta de `lanzamiento` pasa a ser correr dos comandos.
 | `scripts/cifrado-copia.mjs` | AES-256-GCM con la clave `BACKUP_CLAVE`; detecta si el archivo fue alterado |
 | `scripts/archivos-storage.mjs` | Reescribe las URLs de las imágenes al proyecto nuevo; huella de cada archivo |
 | `scripts/orden-de-carga.mjs` | Deduce del SQL en qué orden se cargan las tablas |
+| `scripts/sql-del-repo.mjs` | Qué archivos SQL arman la base y en qué orden (respeta `supabase/restauracion/orden.txt`) |
 | `scripts/restaurar-datos.mjs` | Restaura en un proyecto vacío y verifica todo sin imprimir valores |
 | `scripts/*.test.mjs` | Cifrado, Storage y, en PGlite, el orden de carga contra el esquema real y la recarga completa |
 | `supabase/restauracion/preparar.sql`, `terminar.sql` | Vaciar el contenido de ejemplo y apagar o encender los triggers |
@@ -39,9 +40,23 @@ simulacro de la puerta de `lanzamiento` pasa a ser correr dos comandos.
    el `include` de Vitest alcance `scripts/**/*.test.mjs`. Los tests de
    `scripts/` llevan `// @vitest-environment node`.
 4. **`.gitignore`:** agregar `copia/` y `.env.restauracion`.
-5. **Lo que supone la restauración:** que `supabase/schema.sql` (si existe)
-   más **todas** las migraciones en orden arman la base, igual que en los
-   tests. Si no es así (Saviare: `schema.sql` ya incluía las primeras
+5. **Qué SQL arman la base** (`scripts/sql-del-repo.mjs`, el mismo orden
+   para la restauración y para su test), de lo más explícito a lo más
+   automático:
+   1. **`supabase/restauracion/orden.txt`**: un archivo por línea. **Hace
+      falta si en `supabase/` hay SQL que no son migraciones**, como una
+      consulta que solo revisa o un script que deshace otra migración.
+      ESCALA tiene los dos (`000_revisar.sql` y `011_deshacer.sql`): sin
+      `orden.txt`, la restauración correría el deshacer.
+   2. `supabase/schema.sql` (si existe) y `supabase/migrations/*.sql`.
+   3. `supabase/*.sql` en orden alfabético.
+
+   Si el proyecto prueba con `node --test` y no con Vitest (ESCALA), se
+   agregan `vitest` y `@electric-sql/pglite` solo para estos tests, con un
+   script aparte (`test:respaldo`) que la CI corre.
+
+   **Lo que supone la restauración:** que esos SQL, en ese orden, arman la
+   base, igual que en los tests. Si no es así (Saviare: `schema.sql` ya incluía las primeras
    migraciones y correrlas encima choca), arreglarlo antes, o escribir el
    orden real en `docs/restaurar-backup.md`. El test `restauracion.test.mjs`
    lo detecta: falla si ese camino no arma la base.

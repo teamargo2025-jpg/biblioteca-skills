@@ -5,7 +5,10 @@
 // tablas, que preparar.sql deja todo vacio y con los triggers apagados, y que
 // con eso una copia completa se vuelve a cargar sin errores.
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { PGlite } from '@electric-sql/pglite';
 import { citext } from '@electric-sql/pglite/contrib/citext';
 import { pg_trgm } from '@electric-sql/pglite/contrib/pg_trgm';
@@ -13,6 +16,7 @@ import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
 import { uuid_ossp } from '@electric-sql/pglite/contrib/uuid_ossp';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { dependencias, ordenDeCarga } from './orden-de-carga.mjs';
+import { nombresSqlDelRepo, sqlDelRepo as leerSqlDelRepo } from './sql-del-repo.mjs';
 
 const DIR = new URL('../supabase/', import.meta.url);
 const leer = (ruta) => readFileSync(new URL(ruta, DIR), 'utf8');
@@ -24,12 +28,9 @@ const sinExtensionesDelServidor = (sql) =>
     ''
   );
 
-const sqlDelRepo = () => [
-  ...(existsSync(new URL('schema.sql', DIR)) ? [leer('schema.sql')] : []),
-  ...readdirSync(new URL('migrations/', DIR))
-    .sort()
-    .map((f) => leer(`migrations/${f}`))
-];
+// El mismo orden que usa la restauracion (schema + migraciones, o el orden
+// explicito de supabase/restauracion/orden.txt).
+const sqlDelRepo = () => leerSqlDelRepo(fileURLToPath(DIR)).map((s) => s.sql);
 
 // Lo que Supabase trae de fabrica, simulado. Si una migracion usa algo que no
 // esta aca, el test falla con el nombre de lo que falta: se agrega aca.
@@ -40,14 +41,30 @@ const STUBS_SUPABASE = `
   grant usage on schema public to anon, authenticated, service_role;
   create schema auth;
   grant usage on schema auth to anon, authenticated, service_role;
+  -- Las columnas de auth.users que las migraciones suelen leer.
   create table auth.users (
     id uuid primary key default gen_random_uuid(),
     email text,
+    phone text,
+    encrypted_password text,
+    email_confirmed_at timestamptz,
+    last_sign_in_at timestamptz,
     raw_user_meta_data jsonb default '{}',
-    created_at timestamptz default now()
+    raw_app_meta_data jsonb default '{}',
+    is_anonymous boolean default false,
+    banned_until timestamptz,
+    created_at timestamptz default now(),
+    updated_at timestamptz default now(),
+    deleted_at timestamptz
   );
   create function auth.uid() returns uuid language sql stable as $$
     select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid
+  $$;
+  create function auth.role() returns text language sql stable as $$
+    select coalesce(nullif(current_setting('request.jwt.claim.role', true), ''), 'anon')
+  $$;
+  create function auth.jwt() returns jsonb language sql stable as $$
+    select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb
   $$;
   create schema storage;
   create table storage.buckets (id text primary key, name text, public boolean);
@@ -63,6 +80,51 @@ const STUBS_SUPABASE = `
   create function net.http_post(url text, headers jsonb, body jsonb, timeout_milliseconds int)
     returns bigint language sql as $$ select 1::bigint $$;
 `;
+
+describe('que SQL arman la base', () => {
+  const carpeta = (archivos) => {
+    const raiz = mkdtempSync(join(tmpdir(), 'sql-'));
+    for (const [ruta, texto] of Object.entries(archivos)) {
+      mkdirSync(join(raiz, dirname(ruta)), { recursive: true });
+      writeFileSync(join(raiz, ruta), texto);
+    }
+    return raiz;
+  };
+
+  it('con migrations/: schema.sql primero y las migraciones en orden', () => {
+    const raiz = carpeta({
+      'schema.sql': '',
+      'migrations/002_b.sql': '',
+      'migrations/001_a.sql': ''
+    });
+    expect(nombresSqlDelRepo(raiz)).toEqual([
+      'schema.sql',
+      'migrations/001_a.sql',
+      'migrations/002_b.sql'
+    ]);
+  });
+
+  it('sin migrations/: los .sql de la carpeta en orden', () => {
+    const raiz = carpeta({ '002_b.sql': '', '001_a.sql': '', 'notas.txt': '' });
+    expect(nombresSqlDelRepo(raiz)).toEqual(['001_a.sql', '002_b.sql']);
+  });
+
+  it('con orden.txt manda el orden escrito y deja afuera lo que no es migracion', () => {
+    const raiz = carpeta({
+      '000_revisar.sql': '',
+      '001_a.sql': '',
+      '011_deshacer.sql': '',
+      '011_seguridad.sql': '',
+      'restauracion/orden.txt': '# sin revisar ni deshacer\n001_a.sql\n\n011_seguridad.sql\n'
+    });
+    expect(nombresSqlDelRepo(raiz)).toEqual(['001_a.sql', '011_seguridad.sql']);
+  });
+
+  it('avisa si orden.txt nombra un archivo que no existe', () => {
+    const raiz = carpeta({ 'restauracion/orden.txt': '001_falta.sql\n' });
+    expect(() => leerSqlDelRepo(raiz)).toThrow(/No existe/);
+  });
+});
 
 describe('orden de carga', () => {
   it('pone cada tabla despues de las que apunta', () => {

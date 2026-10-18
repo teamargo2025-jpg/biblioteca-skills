@@ -278,94 +278,104 @@ const listarCuentas = async () => {
   return (await respuesta.json()).users ?? [];
 };
 
-// --- 2. El destino tiene que estar vacio ----------------------------------
+// --solo-verificar: no carga nada, solo compara el destino con la copia. Sirve
+// para revisar de nuevo una restauracion ya hecha (por ejemplo, despues de
+// entender una diferencia) sin tener que vaciar el destino.
+const SOLO_VERIFICAR = process.argv.includes('--solo-verificar');
 
-if ((await listarCuentas()).length > 0) {
-  fallar(
-    'El destino ya tiene cuentas creadas. Restaurar es llenar un proyecto nuevo:\n' +
-      '  las cuentas de la copia se crean con su id original y no pueden chocar.'
-  );
-}
-for (const tabla of tablas) {
-  const filas = await contarFilas(tabla);
-  if (filas > 0) {
+if (!SOLO_VERIFICAR) {
+  // --- 2. El destino tiene que estar vacio ----------------------------------
+
+  if ((await listarCuentas()).length > 0) {
     fallar(
-      `${tabla} ya tiene ${filas} filas en el destino. Restaurar es llenar una base\n` +
-        '  vacia; mezclar con datos existentes daria una base que no es ninguna de las dos.\n' +
-        '  Si es un proyecto recien creado, falta correr supabase/restauracion/preparar.sql:\n' +
-        '  las migraciones cargan contenido de ejemplo.'
+      'El destino ya tiene cuentas creadas. Restaurar es llenar un proyecto nuevo:\n' +
+        '  las cuentas de la copia se crean con su id original y no pueden chocar.'
     );
   }
-}
-for (const { id } of storage.buckets) {
-  if ((await existeBucket(id)) && (await listarObjetos(id)).length > 0) {
-    fallar(`El bucket ${id} ya tiene archivos en el destino. Restaurar es llenar uno vacio.`);
-  }
-}
-
-// --- 3. Cargar -------------------------------------------------------------
-
-// Primero las cuentas, con el mismo id: los perfiles apuntan a ellas. La contrasena
-// es una al azar que nadie conoce; cada persona pone la suya con "olvide mi
-// contrasena" o el dueno se la cambia desde el panel de Supabase.
-for (const { id, email, phone, user_metadata, app_metadata } of cuentas) {
-  const respuesta = await fetch(`${DESTINO}/auth/v1/admin/users`, {
-    method: 'POST',
-    headers: { ...cabeceras, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id,
-      email,
-      phone,
-      email_confirm: true,
-      password: randomBytes(24).toString('base64url'),
-      user_metadata,
-      app_metadata
-    })
-  });
-  if (!respuesta.ok) fallar(`Cuenta ${id}: HTTP ${respuesta.status}\n  ${await respuesta.text()}`);
-  const creada = await respuesta.json();
-  if (creada.id !== id) {
-    fallar(
-      `La cuenta ${id} se creo con otro id (${creada.id}). Supabase no respeto el id\n` +
-        '  original y los perfiles no van a poder apuntarle. Borrar el proyecto de destino y avisar.'
-    );
-  }
-}
-if (cuentas.length) {
-  console.log(
-    `  ${'(cuentas del equipo)'.padEnd(28)} ${String(cuentas.length).padStart(6)} creadas`
-  );
-}
-
-for (const tabla of tablas) {
-  await insertar(tabla, esperado[tabla]);
-  console.log(`  ${tabla.padEnd(28)} ${String(esperado[tabla].length).padStart(6)} filas cargadas`);
-}
-if (urlsReescritas) {
-  console.log(`  (${urlsReescritas} filas con URLs de imagenes reescritas al proyecto nuevo)`);
-}
-
-for (const { id, publico } of storage.buckets) {
-  if (!(await existeBucket(id))) {
-    const respuesta = await pedirStorage('bucket', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, name: id, public: publico })
-    });
-    if (!respuesta.ok) fallar(`No se pudo crear el bucket ${id}: HTTP ${respuesta.status}`);
-  }
-  const suyos = storage.archivos.filter((a) => a.bucket === id);
-  for (const { ruta, tipo } of suyos) {
-    const respuesta = await pedirStorage(`object/${id}/${rutaEnUrl(ruta)}`, {
-      method: 'POST',
-      headers: { 'Content-Type': tipo, 'x-upsert': 'false' },
-      body: Buffer.from(archivos[`storage/${id}/${ruta}`], 'base64')
-    });
-    if (!respuesta.ok) {
-      fallar(`Storage ${id}/${ruta}: HTTP ${respuesta.status}\n  ${await respuesta.text()}`);
+  for (const tabla of tablas) {
+    const filas = await contarFilas(tabla);
+    if (filas > 0) {
+      fallar(
+        `${tabla} ya tiene ${filas} filas en el destino. Restaurar es llenar una base\n` +
+          '  vacia; mezclar con datos existentes daria una base que no es ninguna de las dos.\n' +
+          '  Si es un proyecto recien creado, falta correr supabase/restauracion/preparar.sql:\n' +
+          '  las migraciones cargan contenido de ejemplo.'
+      );
     }
   }
-  console.log(`  storage/${id.padEnd(20)} ${String(suyos.length).padStart(6)} archivos subidos`);
+  for (const { id } of storage.buckets) {
+    if ((await existeBucket(id)) && (await listarObjetos(id)).length > 0) {
+      fallar(`El bucket ${id} ya tiene archivos en el destino. Restaurar es llenar uno vacio.`);
+    }
+  }
+
+  // --- 3. Cargar -------------------------------------------------------------
+
+  // Primero las cuentas, con el mismo id: los perfiles apuntan a ellas. La contrasena
+  // es una al azar que nadie conoce; cada persona pone la suya con "olvide mi
+  // contrasena" o el dueno se la cambia desde el panel de Supabase.
+  for (const { id, email, phone, user_metadata, app_metadata } of cuentas) {
+    const respuesta = await fetch(`${DESTINO}/auth/v1/admin/users`, {
+      method: 'POST',
+      headers: { ...cabeceras, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id,
+        email,
+        phone,
+        email_confirm: true,
+        password: randomBytes(24).toString('base64url'),
+        user_metadata,
+        app_metadata
+      })
+    });
+    if (!respuesta.ok)
+      fallar(`Cuenta ${id}: HTTP ${respuesta.status}\n  ${await respuesta.text()}`);
+    const creada = await respuesta.json();
+    if (creada.id !== id) {
+      fallar(
+        `La cuenta ${id} se creo con otro id (${creada.id}). Supabase no respeto el id\n` +
+          '  original y los perfiles no van a poder apuntarle. Borrar el proyecto de destino y avisar.'
+      );
+    }
+  }
+  if (cuentas.length) {
+    console.log(
+      `  ${'(cuentas del equipo)'.padEnd(28)} ${String(cuentas.length).padStart(6)} creadas`
+    );
+  }
+
+  for (const tabla of tablas) {
+    await insertar(tabla, esperado[tabla]);
+    console.log(
+      `  ${tabla.padEnd(28)} ${String(esperado[tabla].length).padStart(6)} filas cargadas`
+    );
+  }
+  if (urlsReescritas) {
+    console.log(`  (${urlsReescritas} filas con URLs de imagenes reescritas al proyecto nuevo)`);
+  }
+
+  for (const { id, publico } of storage.buckets) {
+    if (!(await existeBucket(id))) {
+      const respuesta = await pedirStorage('bucket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, name: id, public: publico })
+      });
+      if (!respuesta.ok) fallar(`No se pudo crear el bucket ${id}: HTTP ${respuesta.status}`);
+    }
+    const suyos = storage.archivos.filter((a) => a.bucket === id);
+    for (const { ruta, tipo } of suyos) {
+      const respuesta = await pedirStorage(`object/${id}/${rutaEnUrl(ruta)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': tipo, 'x-upsert': 'false' },
+        body: Buffer.from(archivos[`storage/${id}/${ruta}`], 'base64')
+      });
+      if (!respuesta.ok) {
+        fallar(`Storage ${id}/${ruta}: HTTP ${respuesta.status}\n  ${await respuesta.text()}`);
+      }
+    }
+    console.log(`  storage/${id.padEnd(20)} ${String(suyos.length).padStart(6)} archivos subidos`);
+  }
 }
 
 // --- 4. Verificar ----------------------------------------------------------
@@ -400,6 +410,12 @@ const clave = (fila) =>
   informar('(cuentas del equipo)', problemas);
 }
 
+// Columnas que el destino tiene y la copia no: el SQL del repo las crea, pero
+// la base de origen no las tenia. Casi siempre es una migracion que nunca se
+// corrio en produccion (ESCALA: la 007, ventas por producto). No es una
+// diferencia de datos (en el destino quedan vacias), pero hay que decirlo.
+const columnasSoloEnDestino = new Set();
+
 for (const tabla of tablas) {
   const filasEsperadas = new Map(esperado[tabla].map((fila) => [clave(fila), fila]));
   const actuales = await leerTodo(tabla);
@@ -417,6 +433,10 @@ for (const tabla of tablas) {
     }
     // Solo el nombre del campo: los valores pueden ser datos de una persona.
     for (const campo of new Set([...Object.keys(original), ...Object.keys(fila)])) {
+      if (!(campo in original) && fila[campo] === null) {
+        columnasSoloEnDestino.add(`${tabla}.${campo}`);
+        continue;
+      }
       if (JSON.stringify(original[campo]) !== JSON.stringify(fila[campo])) {
         problemas.push(`${nombre}, campo ${campo}: distinto de la copia`);
       }
@@ -443,6 +463,14 @@ for (const { id } of storage.buckets) {
     }
   }
   informar(`storage/${id}`, problemas);
+}
+
+if (columnasSoloEnDestino.size) {
+  console.log(
+    '\n  OJO, no es un error del respaldo: estas columnas estan en el SQL del repo pero la\n' +
+      '  base de origen no las tiene. Seguramente hay una migracion sin correr en produccion:\n' +
+      `    ${[...columnasSoloEnDestino].join(', ')}`
+  );
 }
 
 if (diferencias) {

@@ -71,11 +71,14 @@ const tablasDelEsquema = async () => {
 
   const tablas = new Set();
   for (const archivo of archivos) {
-    const sql = await readFile(archivo, 'utf8');
+    const sql = (await readFile(archivo, 'utf8')).replace(/--[^\n]*/g, '');
+    // Acepta "create table negocios" y "create table public.negocios" (con o
+    // sin comillas). Las tablas de otros esquemas (auth, storage) no van: las
+    // maneja Supabase. Sin esto, en ESCALA se leia "public" como una tabla.
     for (const m of sql.matchAll(
-      /create\s+table\s+(?:if\s+not\s+exists\s+)?([a-z_][a-z0-9_]*)/gi
+      /create\s+table\s+(?:if\s+not\s+exists\s+)?(?:"?([a-z_][a-z0-9_]*)"?\.)?"?([a-z_][a-z0-9_]*)"?/gi
     )) {
-      tablas.add(m[1]);
+      if (!m[1] || m[1].toLowerCase() === 'public') tablas.add(m[2].toLowerCase());
     }
   }
   return [...tablas].sort();

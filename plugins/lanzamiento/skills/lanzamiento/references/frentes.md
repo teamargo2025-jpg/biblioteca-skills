@@ -181,6 +181,34 @@ son "sensibles": más cuidado todavía.
   rastrean se contradicen (revisado en octubre de 2026).
 - Si no hay nada de eso, decirlo en el informe como "Antes de una semana" y
   acordar al menos un canal ("si algo falla, me escriben a este número").
+- **Que alguien se entere si el respaldo falla.** GitHub avisa por correo
+  cuando un workflow sale en rojo, pero solo a quien lo disparó o tiene las
+  notificaciones activas. Comprobar quién recibe ese aviso. En Gonthia, el
+  respaldo falló cinco días sin que nadie lo viera.
+
+### Quién hizo qué
+
+En lo delicado (caja, borrados, cambios de permisos o de precios) tiene que
+quedar registrado **quién y cuándo**, para poder responder "¿quién borró este
+pago?".
+
+- Mirar en el esquema si las tablas de dinero tienen `registrado_por` y
+  `created_at`, y si los **borrados y los cambios** también se registran (una
+  tabla de historial o un trigger). Registrar solo quién crea no alcanza.
+- Sin registro de borrados en la caja: "Antes de una semana". En lo demás:
+  "Mejora".
+
+### Si pasa algo: el plan de incidentes
+
+Antes de lanzar, el dueño tiene que saber **qué pasa si algo sale mal**:
+quién le avisa, en cuánto tiempo y qué se hace. El plan común está en
+`conocimiento/guias/plan-de-incidentes.md`.
+
+- Comprobar que el cliente tenga el contacto de soporte y sepa qué contar.
+- Si el sistema guarda datos personales, recordar que una filtración puede
+  obligar a avisar a las personas afectadas y a la Autoridad Nacional de
+  Protección de Datos Personales (Ley 29733). Decirlo, sin afirmar plazos: lo
+  confirma el dueño con un abogado.
 
 ## 7. Publicación
 
@@ -210,6 +238,24 @@ son "sensibles": más cuidado todavía.
   | Registro público | Authentication → Sign In / Providers | Cerrado, salvo que la app sea de registro libre |
   | Correo (SMTP) | Authentication → Emails → SMTP | Un SMTP propio si la app manda correos (recuperar contraseña, confirmar cuenta): **el SMTP por defecto de Supabase solo envía a los miembros de la organización**, así que al cliente y a su equipo no les llega nada |
   | Roles en la organización | Organization → Team | El correo del proyecto como Owner; el desarrollador como Developer (`arranque/references/cuentas.md`) |
+  | Largo mínimo de contraseña | Authentication → Providers → Email (o *Auth → Policies*, según la versión del panel) | **8 o más**. Con menos: "Antes de una semana" |
+  | Límite de intentos | Authentication → Rate Limits | Que exista un límite de inicios de sesión y de correos por hora; no subirlo "para probar" y olvidarlo |
+  | 2FA en las cuentas del panel | Foto de perfil → Account preferences → Security, de cada cuenta Owner | El correo del proyecto con 2FA, con el Authenticator del dueño |
+
+- **Cabeceras de seguridad, en el sitio publicado:**
+
+  ```bash
+  node <skill>/scripts/cabeceras-en-linea.mjs https://<la-app>/
+  ```
+
+  Revisa CSP, protección contra marcos invisibles, HTTPS obligatorio,
+  `nosniff`, Referrer-Policy y Permissions-Policy. Después, la nota en
+  https://developer.mozilla.org/en-US/observatory: B o más. Si faltan:
+  "Antes de una semana"; el arreglo es el `public/_headers` de `arranque`,
+  ajustado al proyecto (cámara, videos, APIs).
+- **2FA del admin dentro de la app** (Supabase Auth soporta TOTP): en un
+  sistema con datos de salud o con caja, el admin debería poder activarlo.
+  Hoy es "Mejora"; anotarlo para el producto.
 
 - **Las llaves de la app son del cliente.** El dueño tiene que poder:
   - **cambiar su contraseña** desde la app;

@@ -74,11 +74,22 @@ const STUBS_SUPABASE = `
   create schema vault;
   create table vault.decrypted_secrets (name text, decrypted_secret text);
   create schema cron;
+  create table cron.job (jobid bigserial primary key, jobname text, schedule text, command text);
   create function cron.schedule(nombre text, horario text, comando text) returns bigint
     language sql as $$ select 1::bigint $$;
+  create function cron.schedule(horario text, comando text) returns bigint
+    language sql as $$ select 1::bigint $$;
+  create function cron.unschedule(nombre text) returns boolean
+    language sql as $$ select true $$;
+  create function cron.unschedule(id bigint) returns boolean
+    language sql as $$ select true $$;
   create schema net;
   create function net.http_post(url text, headers jsonb, body jsonb, timeout_milliseconds int)
     returns bigint language sql as $$ select 1::bigint $$;
+  create function net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds int)
+    returns bigint language sql as $$ select 1::bigint $$;
+  create function net.http_get(url text) returns bigint
+    language sql as $$ select 1::bigint $$;
 `;
 
 describe('que SQL arman la base', () => {

@@ -58,7 +58,14 @@ const fallar = (mensaje) => {
 };
 
 const { DESTINO_URL, DESTINO_SERVICE_KEY, BACKUP_CLAVE } = await leerEnv('.env.restauracion');
-const { VITE_SUPABASE_URL: PRODUCCION } = await leerEnv('.env');
+// La base de produccion puede estar en .env o en .env.local (o en las dos,
+// segun el proyecto): se juntan todas para que la proteccion no falle en
+// silencio.
+const PRODUCCIONES = [
+  (await leerEnv('.env')).VITE_SUPABASE_URL,
+  (await leerEnv('.env.local')).VITE_SUPABASE_URL,
+  (await leerEnv('.env.production')).VITE_SUPABASE_URL
+].filter(Boolean);
 
 if (!DESTINO_URL || !DESTINO_SERVICE_KEY || DESTINO_URL.includes('xxxxxxxx')) {
   fallar('Completa DESTINO_URL y DESTINO_SERVICE_KEY en .env.restauracion.');
@@ -73,7 +80,13 @@ const host = (url) => {
 };
 
 if (!host(DESTINO_URL)) fallar(`DESTINO_URL no es una URL valida: ${DESTINO_URL}`);
-if (PRODUCCION && host(DESTINO_URL) === host(PRODUCCION)) {
+if (!PRODUCCIONES.length) {
+  fallar(
+    'No encontre VITE_SUPABASE_URL en .env, .env.local ni .env.production, asi que no\n' +
+      '  puedo comprobar que el destino no sea produccion. No se hizo ningun cambio.'
+  );
+}
+if (PRODUCCIONES.some((p) => host(DESTINO_URL) === host(p))) {
   fallar(
     'DESTINO_URL es la base de PRODUCCION. Este script solo escribe en un proyecto\n' +
       '  de prueba o en uno nuevo. No se hizo ningun cambio.'

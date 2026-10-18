@@ -232,3 +232,45 @@ describe('contra el esquema real', () => {
     expect((await filas(apagados))[0].n).toBe(0);
   });
 });
+
+// El caso de ESCALA: una columna "generated always as identity" no deja
+// cargar los ids originales, y sin adelantar el contador el primer registro
+// nuevo choca con uno restaurado.
+describe('ids generados por la base', () => {
+  it('se cargan con su id original y despues los nuevos siguen la cuenta', async () => {
+    const db = new PGlite();
+    await db.exec(`
+      create table bitacora (id bigint generated always as identity primary key, que text);
+      create table notas (id bigserial primary key, texto text);
+      insert into bitacora (que) values ('a'), ('b'), ('c');
+      insert into notas (texto) values ('x'), ('y');
+    `);
+    const copia = {
+      bitacora: (await db.query('select * from bitacora')).rows,
+      notas: (await db.query('select * from notas')).rows
+    };
+
+    await db.exec(leer('restauracion/preparar.sql'));
+    for (const [t, filas] of Object.entries(copia)) {
+      await db.query(
+        `insert into ${t} select * from json_populate_recordset(null::${t}, $1::json)`,
+        [JSON.stringify(filas)]
+      );
+    }
+    await db.exec(leer('restauracion/terminar.sql'));
+
+    const nueva = await db.query(`insert into bitacora (que) values ('d') returning id`);
+    expect(Number(nueva.rows[0].id)).toBe(4);
+    const nota = await db.query(`insert into notas (texto) values ('z') returning id`);
+    expect(Number(nota.rows[0].id)).toBe(3);
+    // Y la columna vuelve a no dejar escribir su id a mano.
+    await expect(db.exec(`insert into bitacora (id, que) values (99, 'e')`)).rejects.toThrow(
+      /GENERATED ALWAYS|non-DEFAULT/i
+    );
+    // Sin restos del proceso.
+    const restos = await db.query(
+      `select count(*)::int as n from pg_namespace where nspname = 'restauracion'`
+    );
+    expect(restos.rows[0].n).toBe(0);
+  });
+});

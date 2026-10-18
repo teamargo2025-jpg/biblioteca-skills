@@ -137,6 +137,14 @@ const bajarTabla = async (tabla) => {
           '  encima de RLS y ve todo.'
       );
     }
+    // Una tabla que el SQL del repo creo alguna vez pero que una migracion
+    // posterior borro o renombro (MiAgenda: gastos paso a ser movimientos)
+    // no existe en la base: no hay nada que respaldar de ella.
+    if (respuesta.status === 404) {
+      const cuerpo = await respuesta.json().catch(() => ({}));
+      if (cuerpo.code === 'PGRST205' || cuerpo.code === '42P01') return null;
+      throw new Error(`${tabla}: HTTP 404`);
+    }
     if (!respuesta.ok) throw new Error(`${tabla}: HTTP ${respuesta.status}`);
     const pagina = await respuesta.json();
     filas.push(...pagina);
@@ -155,8 +163,13 @@ let totalFilas = 0;
 const resumen = [];
 const archivos = {};
 
+const yaNoExisten = [];
 for (const tabla of tablas) {
   const filas = await bajarTabla(tabla);
+  if (filas === null) {
+    yaNoExisten.push(tabla);
+    continue;
+  }
   archivos[`${tabla}.json`] = JSON.stringify(filas, null, 2);
   totalFilas += filas.length;
   resumen.push({ tabla, filas: filas.length });
@@ -284,7 +297,12 @@ archivos['_resumen.json'] = textoResumen;
 await writeFile(`${DESTINO}/copia.cifrada`, cifrar(archivos, CLAVE_CIFRADO));
 await writeFile(`${DESTINO}/_resumen.json`, textoResumen);
 
-console.log(`\n  ${tablas.length} tablas, ${totalFilas} filas en total.`);
+console.log(`\n  ${tablas.length - yaNoExisten.length} tablas, ${totalFilas} filas en total.`);
+if (yaNoExisten.length) {
+  console.log(
+    `  (en el SQL del repo pero ya no en la base, se borraron o renombraron: ${yaNoExisten.join(', ')})`
+  );
+}
 
 // Una copia vacia se guarda igual y parece que todo salio bien. Es la
 // forma mas facil de creer que hay respaldo y no tenerlo, asi que se

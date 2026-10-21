@@ -1,6 +1,6 @@
 ---
 name: entrega
-description: Lleva a un cliente de Argonauta Sistemas desde la demo hasta que su sistema opera y queda en mantenimiento. Llena las hojas del kit (oferta, acuerdo y acta de entrega) con los datos del cliente y las deja en PDF; antes del acta revisa con evidencia que se cumplan las puertas (lanzamiento sin bloqueos, respaldo restaurado, datos de prueba borrados, cuentas en la casa del cliente); después deja el issue de seguimiento con la fecha de su primera auditoría. Úsala cuando digan "prepara la oferta para X", "el cliente dijo que sí, arma el acuerdo", "mañana entregamos", "prepara el acta", "¿estamos listos para entregar?", "cierra la entrega de X", o cuando un cliente termina el servicio. No la uses para revisar la seguridad en sí (eso es lanzamiento) ni para definir un proyecto nuevo (metis).
+description: Lleva a un cliente de Argonauta Sistemas desde la demo hasta que su sistema opera y queda en mantenimiento. Llena las hojas del kit (oferta, acuerdo y acta de entrega) con los datos del cliente y las deja en PDF; antes del acta revisa con evidencia que se cumplan las puertas (lanzamiento sin bloqueos, respaldo restaurado, datos de prueba borrados, cuentas en la casa del cliente); después deja el issue de seguimiento con la fecha de su primera auditoría. Úsala cuando digan "prepara la oferta para X", "mañana es la primera entrega, arma el acuerdo", "mañana entregamos", "prepara el acta", "¿estamos listos para entregar?", "cierra la entrega de X", o cuando un cliente termina el servicio. No la uses para revisar la seguridad en sí (eso es lanzamiento) ni para definir un proyecto nuevo (metis).
 ---
 
 # Entrega
@@ -35,13 +35,19 @@ casilla marcada por costumbre es justo lo que esta skill existe para evitar.
 | Momento | Cuándo | Qué sale |
 |---|---|---|
 | 1. Oferta | Después de la demo | `oferta.pdf` |
-| 2. Acuerdo | Cuando el cliente dice que sí | `acuerdo.pdf` |
+| 2. Acuerdo | En la primera entrega: la app en un link de prueba con el camino feliz | `acuerdo.pdf`, firmado junto con el primer 50 % |
 | 3. Puerta | Antes del día de la entrega | Tabla: qué se cumple, con evidencia, y qué falta |
 | 4. Acta | El día que empieza a operar | `acta.pdf` y el issue de seguimiento |
 | 5. Término | Solo si el servicio termina | Lista de salida cumplida |
 
 Cada momento se hace cuando toca, no todos juntos. Pregunta en cuál están si
 no es obvio.
+
+Entre la oferta y el acuerdo se construye: para correr `arranque` basta el
+**sí por escrito** del cliente (WhatsApp o correo, con su captura en la
+carpeta del cliente). El acuerdo y el primer 50 % llegan en la **primera
+entrega** (decisión 0005 de `conocimiento`). Si los dos socios decidieron
+cobrar antes de construir, el acuerdo va justo después del sí.
 
 ## 1 y 2. Oferta y acuerdo
 
@@ -61,8 +67,11 @@ no es obvio.
    El script se niega si falta un campo, calcula el 50 % y el inicio de la
    mensualidad (operación + 14 días), y avisa si la hoja no entra en una
    página.
-5. Para el acuerdo: el plan y los precios tienen que ser **los mismos de la
-   oferta**. Si cambiaron, que el usuario lo confirme.
+5. Para el acuerdo: el plan tiene que ser **el mismo de la oferta**. El
+   precio puede cambiar, porque se cierra en la primera entrega: si es
+   distinto al de la oferta, que el usuario confirme el monto final. Antes
+   de generarlo, pregunta si el cliente ya recorrió el camino feliz en el
+   link de prueba; si no, todavía no es el día del acuerdo.
 6. Muestra la hoja al usuario para que la revise. **La manda él**, por el
    canal que use con el cliente.
 
